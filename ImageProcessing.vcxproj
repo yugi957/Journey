@@ -12,13 +12,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMP.h" />
+    <ClInclude Include="general.h" />
+    <ClInclude Include="kernels.cuh" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Operators.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMP.cpp" />
     <ClCompile Include="Image.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="general.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="main.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2C00B198-0605-4430-8DB0-CDB7E7FE0338}</ProjectGuid>

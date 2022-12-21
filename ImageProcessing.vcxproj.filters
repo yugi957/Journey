@@ -2,35 +2,64 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="Image.h">
-      <Filter>Headers</Filter>
+      <Filter>IPFlat\Headers</Filter>
     </ClInclude>
     <ClInclude Include="BMP.h">
-      <Filter>Headers</Filter>
+      <Filter>IPFlat\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Operators.h">
-      <Filter>Headers</Filter>
+      <Filter>IPFlat\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="kernels.cuh">
+      <Filter>CUDA\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="general.h">
+      <Filter>CUDA\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMP.cpp">
-      <Filter>Source Files\src</Filter>
+      <Filter>IPFlat\Source Files\src</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
-      <Filter>Source Files\src</Filter>
+      <Filter>IPFlat\Source Files\src</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>IPFlat\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="general.cpp">
+      <Filter>CUDA\Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Headers">
-      <UniqueIdentifier>{1d34e8dd-e832-4c2a-98a1-01c554accb9b}</UniqueIdentifier>
+    <Filter Include="IPFlat">
+      <UniqueIdentifier>{4e7b272a-f211-496f-a3b5-9bf344126a56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files">
+    <Filter Include="IPFlat\Source Files">
       <UniqueIdentifier>{5e925f93-beb4-449e-9174-28a8f681259b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\src">
+    <Filter Include="IPFlat\Source Files\src">
       <UniqueIdentifier>{1323fd45-7501-4913-8a62-784e50c28fcf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IPFlat\Headers">
+      <UniqueIdentifier>{1d34e8dd-e832-4c2a-98a1-01c554accb9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CUDA">
+      <UniqueIdentifier>{75adc67f-8fb4-4d89-9477-13cf5962c583}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CUDA\Headers">
+      <UniqueIdentifier>{cd820cd3-6f9b-4347-bd45-b50952ac138c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CUDA\Source Files">
+      <UniqueIdentifier>{a5ac9831-a714-41bd-9b53-0c080bbbe07f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CUDA\Source Files\src">
+      <UniqueIdentifier>{dcea4a91-550f-4dee-9db3-cba208c4fd08}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="main.cu">
+      <Filter>CUDA\Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>
