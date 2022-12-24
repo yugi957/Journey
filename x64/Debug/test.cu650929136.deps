@@ -49,6 +49,7 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\crt\math_functi
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\crt\sm_70_rt.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\crt\sm_80_rt.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\crt\sm_90_rt.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\cuda.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\cuda_device_runtime_api.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\cuda_runtime.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\cuda_runtime_api.h
@@ -75,4 +76,3 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\vector_function
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\vector_functions.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include\vector_types.h
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\general.h
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh

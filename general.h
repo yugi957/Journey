@@ -13,10 +13,16 @@ inline void gpuAssert(cudaError code, const char* file, int line, bool abort = t
 	}
 }
 
-void generateRandArray(int* arr, int size);
+void generateRandArray(int* arr, int scale, int size);
+
+void printArray(int* arr, int size);
+
+void printExecution(char* s, clock_t start, clock_t end);
 
 void sum_array_cpu(int* a, int* b, int* c, int size);
 
 void sum_arrays_cpu(int* a, int* b, int* c, int* d, int size);
 
 void compare_arrays(int* a, int* b, int size);
+
+int getSum(int* a, int size);

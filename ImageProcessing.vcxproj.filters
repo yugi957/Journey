@@ -61,5 +61,8 @@
     <CudaCompile Include="main.cu">
       <Filter>CUDA\Source Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="test.cu">
+      <Filter>CUDA\Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

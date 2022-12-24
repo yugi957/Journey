@@ -1,4 +1,4 @@
-Identity=main.cu
+Identity=test.cu
 AdditionalCompilerOptions=
 AdditionalCompilerOptions=
 AdditionalDependencies=
@@ -8,7 +8,7 @@ AdditionalOptions=
 AdditionalOptions=
 CodeGeneration=compute_52,sm_52
 CodeGeneration=compute_52,sm_52
-CompileOut=C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\x64\Debug\main.cu.obj
+CompileOut=C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\x64\Debug\test.cu.obj
 CudaRuntime=Static
 CudaToolkitCustomDir=
 DebugInformationFormat=ProgramDatabase

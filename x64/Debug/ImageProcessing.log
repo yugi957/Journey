@@ -1,7 +1,28 @@
 ﻿  Compiling CUDA source file main.cu...
+  Skipping CUDA source file test.cu (excluded from build).
   
-  C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\bin\HostX64\x64" -x cu   -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include"  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc143.pdb /FS /Zi /RTC1 /MDd " -o C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\x64\Debug\main.cu.obj "C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu" 
+  C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\bin\HostX64\x64" -x cu   -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include"  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc143.pdb /FS /Zi /RTC1 /MDd " -o C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\x64\Debug\main.cu.obj "C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu" 
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(78): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+  Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(79): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(80): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(81): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(82): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(83): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(84): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(85): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(45): warning #550-D: variable "a" was set but never used
+  
+  Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
   
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(45): warning #550-D: variable "b" was set but never used
   
@@ -9,13 +30,29 @@ C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(63): war
   
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(63): warning #550-D: variable "b" was set but never used
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(12): warning #177-D: variable "cpu_start" was declared but never referenced
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(193): warning #177-D: variable "start" was declared but never referenced
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(12): warning #177-D: variable "cpu_end" was declared but never referenced
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(78): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(79): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(80): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(81): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(82): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(83): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(84): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(85): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
   main.cu
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(12): warning C4101: 'cpu_start': unreferenced local variable
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(12): warning C4101: 'cpu_end': unreferenced local variable
+  tmpxft_0000c6c0_00000000-7_main.cudafe1.cpp
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(10): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'size_t'
+  C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(10): note: consider using '%zd' in the format string
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(71): warning C4018: '<': signed/unsigned mismatch
      Creating library C:\Users\yugi9\source\repos\ImageProcessing\x64\Debug\ImageProcessing.lib and object C:\Users\yugi9\source\repos\ImageProcessing\x64\Debug\ImageProcessing.exp
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   ImageProcessing.vcxproj -> C:\Users\yugi9\source\repos\ImageProcessing\x64\Debug\ImageProcessing.exe

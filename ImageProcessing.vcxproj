@@ -26,7 +26,12 @@
     <ClCompile Include="general.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="main.cu" />
+    <CudaCompile Include="main.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </CudaCompile>
+    <CudaCompile Include="test.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </CudaCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2C00B198-0605-4430-8DB0-CDB7E7FE0338}</ProjectGuid>
@@ -48,7 +53,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.8.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.0.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -96,6 +101,6 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.8.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.0.targets" />
   </ImportGroup>
 </Project>
