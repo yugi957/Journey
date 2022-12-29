@@ -16,6 +16,12 @@
     <ClInclude Include="general.h">
       <Filter>CUDA\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="CUDAFunctions.cuh">
+      <Filter>CUDA\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.cuh">
+      <Filter>IPFlat\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMP.cpp">
@@ -58,11 +64,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="main.cu">
-      <Filter>CUDA\Source Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="test.cu">
       <Filter>CUDA\Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Main.cu">
+      <Filter>IPFlat\Source Files</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

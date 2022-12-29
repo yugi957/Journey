@@ -2,6 +2,7 @@
 #include "device_launch_parameters.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>;
 #include <cstring>
 #include <time.h>
 #define gpuErrorchk(ans) {	gpuAssert((ans), __FILE__, __LINE__);}
@@ -26,3 +27,5 @@ void sum_arrays_cpu(int* a, int* b, int* c, int* d, int size);
 void compare_arrays(int* a, int* b, int size);
 
 int getSum(int* a, int size);
+
+void transpose(int* mat, int* trans, int nx, int ny);

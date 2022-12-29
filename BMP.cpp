@@ -69,10 +69,7 @@ void BMP::readFile(char* filename, colorType cType) {
     fread(data, sizeof(unsigned char), size, streamIn);
 
     fclose(streamIn);
-
     printf("Success !\n");
-    printf("Width: %d\nHeight: %d\n", width, height);
-    printf("Pixel: %d\n", data[0]);
 }
 
 void BMP::writeFile(char* filename) {
@@ -86,8 +83,39 @@ void BMP::writeFile(char* filename) {
         fwrite(colorTable, sizeof(unsigned char), 1024, streamOut);
     }
 
+    for (int i = 0;i < size;i++) {
+        fwrite(data+i, sizeof(unsigned char), 1, streamOut);
+    }
     fwrite(data, sizeof(unsigned char), size, streamOut);
 }
+
+void  BMP::compareFile(BMP a, BMP b) {
+    bool errCheck = true;
+    if (a.size != b.size) {
+        printf("SIZES NOT THE SAME\n");
+        return;
+    }
+    for (int i = 0;i < BMP_HEADER_SIZE;i++) {
+        if (a.header[i] != b.header[i]) {
+            printf("HEADER DIFF - %d :: %d\n", a.header[i], b.header[i]);
+            errCheck = false;
+        }
+    }
+    for (int i = 0;i < BMP_COLOR_TABLE_SIZE;i++) {
+        if (a.colorTable[i] != b.colorTable[i]) {
+            printf("COLORTABLE DIFF - %d :: %d\n", a.colorTable[i], b.colorTable[i]);
+            errCheck = false;
+        }
+    }
+    for (int i = 0;i < a.size;i++) {
+        if (a.data[i] != b.data[i]) {
+            printf("DATA DIFF - pixel %d - %d :: %d\n", i, a.data[i], b.data[i]);
+            errCheck = false;
+        }
+    }
+    if (errCheck) printf("Files are the same!\n");
+}
+
 
 BMP BMP::addImages(BMP a, BMP b) {
     if (a.width != b.width || a.height != b.height || a.color != b.color) {

@@ -74,6 +74,25 @@ void Image::saltAndPepper(float prob){
         }
 }
 
+void Image::addPadding(int pad) {
+    int tempWidth = width + pad * 2;
+    int tempHeight = height + pad * 2;
+    unsigned char* newData = (unsigned char*)malloc(sizeof(unsigned char) * (tempWidth * tempHeight) * (channels));
+
+    for (int r = 0;r < tempHeight;r++) {
+        for (int c = 0;c < tempWidth;c++) {
+            for (int chan = 0;chan < channels;chan++) {
+                int newPixel = r * tempWidth * channels + c * channels + chan;
+                int pixel = (r-1) * width * channels + (c-1) * channels + chan;
+                if (r == 0 || c == 0 || r == tempHeight -1 || c == tempWidth -1) newData[newPixel] = 0;
+                else newData[newPixel] = data[pixel];
+            }
+        }
+    }
+    size = tempHeight * tempWidth;
+    data = newData;
+}
+
 void Image::computeHistogram() {
     char* temp = new char[(sizeof(name) / sizeof(name[0])) + 16];
     temp[0] = '\0';
@@ -172,7 +191,7 @@ int Image::convolute(int row, int col, int channel, float** kernel, int kernelSi
     return (int)sum;
 }
 
-void Image::applyKernel(const float mask[][3]) {
+void Image::applyKernel(const double mask[][3]) {
     float** kernel = new float* [3];
     for (int i = 0; i < 3; i++) {
         kernel[i] = new float[3];

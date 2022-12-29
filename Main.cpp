@@ -2,14 +2,18 @@
 #include <stdlib.h>
 #include "BMP.h"
 #include <string>
+#include <iostream>
+using namespace std;
 
 
 int main()
 {
     BMP image = BMP();
-    image.readFile("images/fruits.bmp", RGB);
-    image.Blur(7.0);
-    image.writeFile("images/fruits_sharp.bmp");
+    image.readFile("images/idk.bmp", RGB);
+    image.printHeader();
+    cout << image.size << endl;
+    image.addPadding(1);
+    image.writeFile("images/idk_blur.bmp");
 
 
 

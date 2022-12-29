@@ -12,7 +12,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BMP.h" />
+    <ClInclude Include="CUDAFunctions.cuh" />
     <ClInclude Include="general.h" />
+    <ClInclude Include="Image.cuh" />
     <ClInclude Include="kernels.cuh" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Operators.h" />
@@ -26,7 +28,7 @@
     <ClCompile Include="general.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="main.cu">
+    <CudaCompile Include="Main.cu">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </CudaCompile>
     <CudaCompile Include="test.cu">
@@ -78,6 +80,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <GenerateRelocatableDeviceCode>false</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

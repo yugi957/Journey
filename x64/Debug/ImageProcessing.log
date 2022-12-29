@@ -1,58 +1,131 @@
-﻿  Compiling CUDA source file main.cu...
+﻿  Compiling CUDA source file Main.cu...
   Skipping CUDA source file test.cu (excluded from build).
   
-  C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\bin\HostX64\x64" -x cu   -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include"  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc143.pdb /FS /Zi /RTC1 /MDd " -o C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\x64\Debug\main.cu.obj "C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu" 
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(78): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\bin\HostX64\x64" -x cu   -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include"  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static  -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc143.pdb /FS /Zi /RTC1 /MDd " -o C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\x64\Debug\Main.cu.obj "C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu" 
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\general.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(107): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
   Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(79): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(108): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(80): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(109): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(81): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(110): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(82): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(111): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(83): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(112): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(84): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(113): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(85): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(114): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(45): warning #550-D: variable "a" was set but never used
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(115): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(159): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(160): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(161): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(162): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(227): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(228): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(229): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(280): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(281): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(333): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(339): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(345): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(403): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(12): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(18): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(19): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(20): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(22): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\general.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(107): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
   Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(45): warning #550-D: variable "b" was set but never used
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(108): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(63): warning #550-D: variable "a" was set but never used
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(109): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(63): warning #550-D: variable "b" was set but never used
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(110): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh(193): warning #177-D: variable "start" was declared but never referenced
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(111): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(78): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(112): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(79): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(113): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(80): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(114): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(81): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(115): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(82): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(159): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(83): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(160): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(84): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(161): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(85): warning #2464-D: conversion from a string literal to "char *" is deprecated
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(162): warning #2464-D: conversion from a string literal to "char *" is deprecated
   
-  main.cu
-  tmpxft_0000c6c0_00000000-7_main.cudafe1.cpp
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(10): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'size_t'
-  C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(10): note: consider using '%zd' in the format string
-C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\main.cu(71): warning C4018: '<': signed/unsigned mismatch
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(227): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(228): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(229): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(280): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(281): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(240): warning #177-D: variable "blockSize" was declared but never referenced
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(333): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(339): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(345): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(403): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(12): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(18): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(19): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(20): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Main.cu(22): warning #2464-D: conversion from a string literal to "char *" is deprecated
+  
+  Main.cu
+  tmpxft_0001e110_00000000-7_Main.cudafe1.cpp
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(24): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'size_t'
+  C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(24): note: consider using '%zd' in the format string
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(76): warning C4018: '<': signed/unsigned mismatch
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\CUDAFunctions.cuh(101): warning C4018: '<': signed/unsigned mismatch
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Image.cuh(21): warning C4244: 'initializing': conversion from 'double' to 'size_t', possible loss of data
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Image.cuh(29): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
      Creating library C:\Users\yugi9\source\repos\ImageProcessing\x64\Debug\ImageProcessing.lib and object C:\Users\yugi9\source\repos\ImageProcessing\x64\Debug\ImageProcessing.exp
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   ImageProcessing.vcxproj -> C:\Users\yugi9\source\repos\ImageProcessing\x64\Debug\ImageProcessing.exe

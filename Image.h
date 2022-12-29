@@ -27,7 +27,8 @@ public:
     char* getString(char* str);
     void brightnessUp(int brightness);
     void brightnessDown(int brightness);
-    void Image::saltAndPepper(float prob);
+    void saltAndPepper(float prob);
+    void addPadding(int pad);
 
     void computeHistogram();
     void computeHistogram(char* filename);
@@ -36,10 +37,11 @@ public:
 
     int getValue(int row, int col, int channel);
     int convolute(int row, int col, int channel, float** kernel, int kernelSize);
-    void applyKernel(const float kernel[][3]);
-    void Convolve2D(const float mask[][3]);
+    void applyKernel(const double kernel[][3]);
     void Blur(float strength);
     void applySepia();
+    void parallelConv(const double kernel[][3]);
+    void parallelBlur(double strength);
 
 
 

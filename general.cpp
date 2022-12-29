@@ -51,3 +51,11 @@ int getSum(int* a, int size) {
 	}
 	return sum;
 }
+
+void transpose(int* mat, int* trans, int nx, int ny) {
+	for (int iy = 0;iy < ny;iy++) {
+		for (int ix = 0;ix < nx;ix++) {
+			trans[ix * ny + iy] = mat[iy * nx + ix];
+		}
+	}
+}
