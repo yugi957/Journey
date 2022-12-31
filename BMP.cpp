@@ -70,6 +70,10 @@ void BMP::readFile(char* filename, colorType cType) {
 
     fclose(streamIn);
     printf("Success !\n");
+    concreteSize = size;
+    concreteHeight = height;
+    concreteWidth = width;
+
 }
 
 void BMP::writeFile(char* filename) {
@@ -83,10 +87,11 @@ void BMP::writeFile(char* filename) {
         fwrite(colorTable, sizeof(unsigned char), 1024, streamOut);
     }
 
-    for (int i = 0;i < size;i++) {
+    for (int i = 0;i < concreteSize;i++) {
         fwrite(data+i, sizeof(unsigned char), 1, streamOut);
     }
-    fwrite(data, sizeof(unsigned char), size, streamOut);
+    //printf("last pixel wrote: %d\n", concreteSize - 1);
+    fwrite(data, sizeof(unsigned char), concreteSize, streamOut);
 }
 
 void  BMP::compareFile(BMP a, BMP b) {
@@ -107,13 +112,31 @@ void  BMP::compareFile(BMP a, BMP b) {
             errCheck = false;
         }
     }
-    for (int i = 0;i < a.size;i++) {
+    for (int i = 0;i < a.concreteSize;i++) {
         if (a.data[i] != b.data[i]) {
             printf("DATA DIFF - pixel %d - %d :: %d\n", i, a.data[i], b.data[i]);
             errCheck = false;
         }
     }
     if (errCheck) printf("Files are the same!\n");
+}
+
+void BMP::compareHeader(BMP a, BMP b, bool colortable) {
+    bool errCheck = true;
+    for (int i = 0;i < BMP_HEADER_SIZE;i++) {
+        if (a.header[i] != b.header[i]) {
+            printf("HEADER DIFF - %d :: %d\n", a.header[i], b.header[i]);
+            errCheck = false;
+        }
+    }
+    if (colortable)
+    for (int i = 0;i < BMP_COLOR_TABLE_SIZE;i++) {
+        if (a.colorTable[i] != b.colorTable[i]) {
+            printf("COLORTABLE DIFF - %d :: %d\n", a.colorTable[i], b.colorTable[i]);
+            errCheck = false;
+        }
+    }
+    if (errCheck) printf("Headers are the same!\n");
 }
 
 

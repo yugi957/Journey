@@ -1,5 +1,12 @@
 #include "general.h"
 
+char* createFilename(char* path, string name, char* extension) {
+	string file = (path + name + extension);
+	char* filename = new char[file.length() + 1];
+	strcpy(filename, file.c_str());
+	return filename;
+}
+
 void generateRandArray(int* arr, int scale, int size) {
 	time_t t;
 	srand((unsigned)time(&t));

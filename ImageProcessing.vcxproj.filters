@@ -13,14 +13,29 @@
     <ClInclude Include="kernels.cuh">
       <Filter>CUDA\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="general.h">
-      <Filter>CUDA\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="CUDAFunctions.cuh">
       <Filter>CUDA\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Image.cuh">
       <Filter>IPFlat\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MLP.h">
+      <Filter>MLP\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="general.h">
+      <Filter>CUDA\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="general.cuh">
+      <Filter>CUDA\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CVImage.h">
+      <Filter>CVImage\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="convolution.h">
+      <Filter>CVImage\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="matConv.h">
+      <Filter>CVImage\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +50,18 @@
     </ClCompile>
     <ClCompile Include="general.cpp">
       <Filter>CUDA\Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="MLP.cpp">
+      <Filter>MLP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CVImage.cpp">
+      <Filter>CVImage\Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Convolution.cpp">
+      <Filter>CVImage\Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="matConv.cpp">
+      <Filter>CVImage\Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -62,13 +89,34 @@
     <Filter Include="CUDA\Source Files\src">
       <UniqueIdentifier>{dcea4a91-550f-4dee-9db3-cba208c4fd08}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MLP">
+      <UniqueIdentifier>{9ac60de2-2b44-444f-b50b-8d40e6ae7903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MLP\Source Files">
+      <UniqueIdentifier>{65618d93-c0df-408d-b378-7d7ee94d39b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MLP\Headers">
+      <UniqueIdentifier>{24544882-c8b2-4485-8221-5a6ece55724e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CVImage">
+      <UniqueIdentifier>{d4b6c7ad-a4e1-4f7f-b4f0-8df7b3dc7140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CVImage\Headers">
+      <UniqueIdentifier>{15fbae67-07c2-4a28-8874-50c5f076b608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CVImage\Source Files">
+      <UniqueIdentifier>{9705d1cf-2293-4ae9-9f6c-f1107da89f8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CVImage\Source Files\src">
+      <UniqueIdentifier>{5c25c06c-2f29-4c5d-828c-06b8a2ea7c87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="test.cu">
-      <Filter>CUDA\Source Files</Filter>
+      <Filter>IPFlat\Source Files</Filter>
     </CudaCompile>
     <CudaCompile Include="Main.cu">
-      <Filter>IPFlat\Source Files</Filter>
+      <Filter>CVImage\Source Files</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

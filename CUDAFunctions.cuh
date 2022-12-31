@@ -1,5 +1,6 @@
 #include "kernels.cuh"
 #include "general.h"
+#include "general.cuh"
 
 void printData(char* msg, int* in, const int size)
 {

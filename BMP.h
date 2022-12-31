@@ -14,6 +14,7 @@ public:
     BMP(Image a, unsigned char head[54], unsigned char ct[1024], int bd, char* name);
     static BMP addImages(BMP a, BMP b);
     static void compareFile(BMP a, BMP b);
+    static void compareHeader(BMP a, BMP b, bool colortable = 1);
 
     void printHeader();
     void readFile(char* filename, colorType ctype = GRAYSCALE);

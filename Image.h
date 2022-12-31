@@ -2,6 +2,10 @@
 #define IMAGE_H
 
 #include <string>
+#include <opencv2/opencv.hpp>
+using namespace cv;
+using namespace std;
+
 enum colorType {
     GRAYSCALE,
     RGB
@@ -13,11 +17,15 @@ class Image
 {
 public:
     Image();
+    Image(Mat image);
     virtual ~Image();
 
     int width;
     int height;
     int size;
+    int concreteWidth;
+    int concreteHeight;
+    int concreteSize;
     unsigned char* data;
     char* name;
     float hist[256];
@@ -42,6 +50,8 @@ public:
     void applySepia();
     void parallelConv(const double kernel[][3]);
     void parallelBlur(double strength);
+
+    void downSize(int skipRate);
 
 
 

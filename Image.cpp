@@ -9,11 +9,21 @@ Image::Image()
     //ctor
 }
 
+Image::Image(Mat image) {
+    width = image.cols;
+    height = image.rows;
+    channels = image.channels();
+    size = width * height * channels;
+    data = image.data;
+
+
+}
+
 void Image::writeData(char* filename) {
     FILE* dataFile;
     dataFile = fopen(filename, "w");
     fprintf(dataFile, "Size: %d\n", size);
-    for (int i = 0;i < size;i++) {
+    for (int i = 0;i < concreteSize;i++) {
         fprintf(dataFile, "pixel %d: %d\n", i, data[i]);
     }
     fclose(dataFile);
@@ -259,6 +269,47 @@ void Image::applySepia() {
         data[i + 1] = (g < 255) ? g : 255;
         data[i + 2] = (r < 255) ? r : 255;
     }
+}
+
+void Image::downSize(int skipRate) {
+
+
+    unsigned char* newData = (unsigned char*)malloc(sizeof(unsigned char) * concreteSize);
+
+    //just for better viewing
+    for (int r = 0;r < concreteHeight;r++) {
+        for (int c = 0;c < concreteWidth;c++) {
+            for (int chan = 0;chan < channels;chan++) {
+                newData[(r * concreteWidth * channels) + (c * channels) + chan] = 0;
+            }
+        }
+    }
+
+    int newR, newC;
+    int lastC = 0;
+    newR = newC = 0;
+    int r = 0;
+    int c = 0;
+    for (r = 0;r < height;r++) {
+        if (r % skipRate != 0) {
+            for (c = 0;c < width;c++) {
+                if (c % skipRate != 0) {
+                    for (int chan = 0;chan < channels;chan++) {
+                        newData[newR * concreteWidth * channels + newC * channels + chan] = data[r * concreteWidth * channels + c * channels + chan];
+                    }
+                    newC++;
+                }
+            }
+            newR++;
+        }
+        if (newC > lastC) lastC = newC;
+        newC = 0;
+    }
+
+    height = newR;
+    width = lastC;
+    size = height * width * channels;
+    data = newData;
 }
 
 Image::~Image()
