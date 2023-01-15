@@ -37,6 +37,12 @@
     <ClInclude Include="matConv.h">
       <Filter>CVImage\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="MNIST.h">
+      <Filter>MLP\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MLP.cuh">
+      <Filter>MLP\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMP.cpp">
@@ -45,14 +51,8 @@
     <ClCompile Include="Image.cpp">
       <Filter>IPFlat\Source Files\src</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>IPFlat\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="general.cpp">
       <Filter>CUDA\Source Files\src</Filter>
-    </ClCompile>
-    <ClCompile Include="MLP.cpp">
-      <Filter>MLP\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CVImage.cpp">
       <Filter>CVImage\Source Files\src</Filter>
@@ -62,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="matConv.cpp">
       <Filter>CVImage\Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>MLP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MLP.cpp">
+      <Filter>MLP\Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,13 +116,22 @@
     <Filter Include="CVImage\Source Files\src">
       <UniqueIdentifier>{5c25c06c-2f29-4c5d-828c-06b8a2ea7c87}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MLP\Source Files\src">
+      <UniqueIdentifier>{db12a8b5-3138-4b1f-b274-70e50087f143}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="test.cu">
       <Filter>IPFlat\Source Files</Filter>
     </CudaCompile>
     <CudaCompile Include="Main.cu">
-      <Filter>CVImage\Source Files</Filter>
+      <Filter>MLP\Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="MLP.cu">
+      <Filter>MLP\Source Files\src</Filter>
+    </CudaCompile>
+    <CudaCompile Include="general.cu">
+      <Filter>CUDA\Source Files\src</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

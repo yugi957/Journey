@@ -182,7 +182,7 @@ void Blur(unsigned char** data, int height, int width, int channels, float stren
             for (int chan = 0;chan < channels;chan++) {
                 pixel = (r * width * channels) + (c * channels) + chan;
                 //printf("convoluting pixel %d...\n", pixel);
-                newData[pixel] = convolute((*data), height, width, channels, r, c, chan, kernel, 3);
+                newData[pixel] = convolute((*data), height, width, channels, r, c, chan, kernel, strength);
             }
         }
     }
@@ -262,7 +262,7 @@ void prewittEdges(unsigned char** data, int height, int width, int channels) {
     (*data) = addImages(horiz, height, width, channels, vert, height, width, channels);
 }
 
-void pooling(unsigned char** data, int height, int width, int channels, int poolSize) {
+unsigned char* maxPooling(unsigned char** data, int height, int width, int channels, int poolSize) {
     int size = getSize(height, width, channels);
 
     int newWidth = ceil((double)width / poolSize);
@@ -275,8 +275,8 @@ void pooling(unsigned char** data, int height, int width, int channels, int pool
     printf("POOLING %dx%d IMAGE TO %dx%d IMAGE\n", height, width, newHeight, newWidth);
     int newC, newR;
     newC = newR = 0;
-    for (int r = rStart;r < rStart * height;r += poolSize) {
-        for (int c = cStart;c < cStart * width;c += poolSize) {
+    for (int r = rStart;r < height;r += poolSize) {
+        for (int c = cStart;c < width;c += poolSize) {
             for (int chan = 0;chan < channels;chan++) {
                 newData[(newR * width * channels) + (newC * channels) + chan] = poolMax((*data), height, width, channels, r, c, chan, poolSize);
             }
@@ -285,7 +285,7 @@ void pooling(unsigned char** data, int height, int width, int channels, int pool
         newR++;
         newC = 0;
     }
-    (*data) = newData;
+    return newData;
 }
 
 unsigned char* avgPooling(unsigned char** data, int height, int width, int channels, int poolSize) {
@@ -310,6 +310,43 @@ unsigned char* avgPooling(unsigned char** data, int height, int width, int chann
         }
         newR++;
         newC = 0;
+    }
+    return newData;
+}
+
+void scalePoint(unsigned char pixel, unsigned char** newData, int height, int width, int channels, int row, int col, int channel, int scale) {
+    int end = (int)((scale / 2.0) + .5);
+    int start = end - scale;
+    double avg = 0;
+    for (int i = start;i < end;i++) {
+        for (int j = start;j < end;j++) {
+            (*newData)[(row + i) * width * channels + (col + j) * channels + channel] = pixel;
+        }
+    }
+}
+
+unsigned char* upscale(unsigned char** data, int height, int width, int channels, int scale) {
+    int size = getSize(height, width, channels);
+
+    int newWidth = width * scale;
+    int newHeight = height * scale;
+    int newSize = getSize(newHeight, newWidth, channels);
+    unsigned char* newData = (unsigned char*)malloc(sizeof(unsigned char) * newSize);
+    int rStart = scale / 2;
+    int cStart = scale / 2;
+
+    printf("SCALING %dx%d IMAGE TO %dx%d IMAGE\n", height, width, newHeight, newWidth);
+    int oldC, oldR;
+    oldC = oldR = 0;
+    for (int r = rStart;r < newHeight;r += scale) {
+        for (int c = cStart;c < newWidth;c += scale) {
+            for (int chan = 0;chan < channels;chan++) {
+                scalePoint((*data)[oldR * width * channels + oldC * channels + chan], &newData, newHeight, newWidth, channels, r, c, chan, scale);
+            }
+            oldC++;
+        }
+        oldR++;
+        oldC = 0;
     }
     return newData;
 }

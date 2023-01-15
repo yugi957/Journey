@@ -46,8 +46,8 @@ void pinnedMemSumExample(int size) {
 
 	dim3 block(blockSize);
 	dim3 grid(size / block.x);
-	int rollCount = grid.x / 512;
-	printf("Kernel launch parameters | grid.x: %d, block.x: %d\n", 512, block.x);
+	int rollCount = grid.x / 32;
+	printf("Kernel launch parameters | grid.x: %d, block.x: %d\n", 32, block.x);
 
 	int* d_a, * d_part, * pinned_d_a, * pinned_d_part;
 
@@ -64,7 +64,7 @@ void pinnedMemSumExample(int size) {
 
 	clock_t gpu_start, gpu_end;
 	gpu_start = clock();
-	reduction_unrolling_intersum << <512, block >> > (d_a, d_part, size, rollCount);
+	reduction_unrolling_intersum << <32, block >> > (d_a, d_part, size, rollCount);
 	gpuErrorchk(cudaDeviceSynchronize());
 	gpu_end = clock();
 
@@ -88,7 +88,7 @@ void pinnedMemSumExample(int size) {
 	//rollCount = 2048;
 	clock_t reduced_start, reduced_end;
 	reduced_start = clock();
-	reduction_unrolling_intersum << <512, block >> > (pinned_d_a, pinned_d_part, size, rollCount);
+	reduction_unrolling_intersum << <32, block >> > (pinned_d_a, pinned_d_part, size, rollCount);
 	gpuErrorchk(cudaDeviceSynchronize());
 	reduced_end = clock();
 
@@ -405,4 +405,50 @@ void convolution(unsigned char* h_data, unsigned char* h_newData, double* filter
 
 	cudaDeviceReset();
 	
+}
+
+double innerProduct(double *d_a, double *d_w, double* d_bufferProduct, int size) {
+
+	int bSize = size * sizeof(double);
+	int blockSize = 32;
+	int partSize = sizeof(double) * size / blockSize;
+	//printf("Array Size: %d, Partition Size: %d\n", size, partSize / sizeof(double));
+
+
+	double* pinned_h_part = (double*)malloc(partSize);
+	//gpuErrorchk(cudaMallocHost(&pinned_h_a, bSize)); //This is how you initialize pinned memory I think. Just faster memcopy I think?
+	gpuErrorchk(cudaMallocHost(&pinned_h_part, partSize));
+
+	dim3 block(blockSize);
+	dim3 grid(size / block.x);
+	int rollCount = grid.x / 8;
+	//printf("Kernel launch parameters | grid.x: %d, block.x: %d\n", 32, block.x);
+	dotProduct << <(size / 32)+1, 32 >> > (d_a, d_w, d_bufferProduct, size);
+	gpuErrorchk(cudaDeviceSynchronize());
+	
+
+
+	double* d_sum, *h_sum;
+	gpuErrorchk(cudaMalloc((void**)&d_sum, sizeof(double)));
+	h_sum = new double;
+
+	clock_t htod_start, htod_end;
+	htod_start = clock();
+	//gpuErrorchk(cudaMemcpy(d_a, h_a, bSize, cudaMemcpyHostToDevice));
+	gpuErrorchk(cudaMemset(d_sum, 0, 1));
+	htod_end = clock();
+
+	clock_t gpu_start, gpu_end;
+	gpu_start = clock();
+	sequentialSum << <1,1 >> > (d_bufferProduct, d_sum, size);
+	gpuErrorchk(cudaDeviceSynchronize());
+	gpu_end = clock();
+	clock_t dtoh_start, dtoh_end;
+	dtoh_start = clock();
+	gpuErrorchk(cudaMemcpy(h_sum, d_sum, sizeof(double), cudaMemcpyDeviceToHost));
+	dtoh_end = clock();
+
+	//printExecution("Total time for Inner Product arrays", htod_start + gpu_start + dtoh_start, htod_end + gpu_end + htod_end);
+	return *h_sum;
+
 }

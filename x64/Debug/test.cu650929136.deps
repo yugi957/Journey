@@ -159,6 +159,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.3193
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\eh.h
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\emmintrin.h
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\exception
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\fstream
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\immintrin.h
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\initializer_list
@@ -295,5 +296,6 @@ C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\general.h
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\image.cuh
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Image.h
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\kernels.cuh
+C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\matConv.h
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\MLP.h
 C:\Users\yugi9\source\repos\ImageProcessing\ImageProcessing\Operators.h

@@ -20,7 +20,9 @@
     <ClInclude Include="kernels.cuh" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="matConv.h" />
+    <ClInclude Include="MLP.cuh" />
     <ClInclude Include="MLP.h" />
+    <ClInclude Include="MNIST.h" />
     <ClInclude Include="Operators.h" />
     <ClInclude Include="CVImage.h" />
   </ItemGroup>
@@ -37,9 +39,11 @@
     <ClCompile Include="CVImage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="general.cu" />
     <CudaCompile Include="Main.cu">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </CudaCompile>
+    <CudaCompile Include="MLP.cu" />
     <CudaCompile Include="test.cu">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CudaCompile>
@@ -93,7 +97,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <GenerateRelocatableDeviceCode>false</GenerateRelocatableDeviceCode>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

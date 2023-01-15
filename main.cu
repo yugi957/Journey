@@ -1,104 +1,153 @@
 //#include "kernels.cuh"
-#include "general.h"
+//#include "general.h"
 //#include "CUDAFunctions.cuh";
-#include "BMP.h"
-#include "Image.h"
-#include "Image.cuh"
+//#include "BMP.h"
+//#include "Image.h"
+//#include "Image.cuh"
 #include "MLP.h"
-#include "matConv.h"
+//#include "matConv.h"
+#include <fstream>
+#include "MNIST.h"
+#include "MLP.cuh"
+#include "general.cuh"
 using namespace std;
 
 int main() {
 
-	//train XOR 
-	//cout << "\n\n-----------------TRAINED XOR EXAMPLE-----------------\n\n";
-	//MultiLayerPerceptron mlp = MultiLayerPerceptron({ 2,2,1 });
-	//cout << "Training Neural Network as XOR gate\n";
-	//double MSE;
-	//int epochs = 3000;
-	//for (int i = 0;i < epochs;i++) {
-	//	MSE = 0.0;
-	//	MSE += mlp.bp({0,0},{0});
-	//	MSE += mlp.bp({0,1},{1});
-	//	MSE += mlp.bp({1,0},{1});
-	//	MSE += mlp.bp({1,1},{0});
-	//	MSE /= 4.0;
-	//	if (i % 100 == 0) printf("Epoch %d: MSE = %f\n", i, MSE);
-	//}
-
-	////test XOR
-	//printf("\n\nTESTING XOR GATE:::\n\n");
-	//mlp.print_weights();
-
-	//cout << "0 0: " << mlp.run({0,0})[0] << endl;
-	//cout << "0 1: " << mlp.run({0,1})[0] << endl;
-	//cout << "1 0: " << mlp.run({1,0})[0] << endl;
-	//cout << "1 1: " << mlp.run({1,1})[0] << endl;
-
-
-	vector<Mat> images;
-	for (int i = 1;i < 10;i++) {
-		//string file = (std::string("train/") + std::to_string(i) + ".jpg");
-		//char* filename = new char[file.length() + 1];
-		//strcpy(filename, file.c_str());
-		char* file = createFilename("train/", to_string(i), ".jpg");
-		Mat image = Mat();
-		image = imread(file, IMREAD_GRAYSCALE);
-		avgPool(&image, 9);
-		prewittEdges(&image);
-		namedWindow("Display frame", WINDOW_AUTOSIZE);
-		imshow("Display frame", image);
-		waitKey(0);
-		images.push_back(image);
-	}
 	
-	vector<vector<double>> inputs;
-	for (int i = 0;i < images.size();i++) {
-		inputs.push_back(vector<double>());
-		int s = getSize(images[i].rows, images[i].cols, images[i].channels());
-		for (int j = 0;j < s;j++) {
-			inputs[i].push_back((double)images[i].data[j]);
-		}
-	}
-	for (int i = 0;i < images.size();i++) {
-		int s = (int)inputs[i].size();
-	}
-	int s = (int)inputs[0].size();
+    vector<vector<double>> train_imgs, train_lbls, test_imgs, test_lbls;
+
+    getMNIST(&train_imgs, &train_lbls, &test_imgs, &test_lbls);
 	
-	
-	
+    int s = train_imgs[0].size();
 	cout << "\n\n----------IMAGE CLASSIFIER----------\n\n";
 
-	printf("Size: %d\n", inputs[0].size());
-	MultiLayerPerceptron* mlp = new MultiLayerPerceptron({ s,s / 3, s / 4, 9 }, 1, .25);
+	printf("Size: %d\n", train_imgs[0].size());
+	//MultiLayerPerceptron* mlp = new MultiLayerPerceptron({s}, CROSS_ENTROPY, 1, .001);
+	//mlp->addLayer(512, SIGMOID);
+	//mlp->addLayer(512, SIGMOID);
+	//mlp->addLayer(10, SOFTMAX);
+	MultiLayerPerceptron* mlp = new MultiLayerPerceptron({ s }, CROSS_ENTROPY, 1, .01);
+	mlp->addLayer(512, SIGMOID);
+	mlp->addLayer(512, SIGMOID);
+	mlp->addLayer(10, SOFTMAX);
+	MultiLayerParatron* mlpara = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .01);
+	mlpara->addLayer(512, SIGMOID);
+	mlpara->addLayer(512, SIGMOID);
+	mlpara->addLayer(10, SOFTMAX);
+	for (int i = 0;i < mlp->h_weights.size();i++) {
+		for (int j = 0;j < mlp->h_weights[i].size();j++) {
+			for (int k = 0;k < mlp->h_weights[i][j].size();k++) {
+				mlpara->h_weights[i][j][k] = mlp->h_weights[i][j][k];
+			}
+		}
+	}
+
+	mlpara->finalize();
 	cout << "Training Neural Network as Image Classifier...\n";
-	double MSE;
+	double loss = 0.0;
+
+    printf("Training on %d images and %d labels...\n", train_imgs.size(), train_lbls.size());
+
+	vector<double> temp = { 0,0,0,0,0,0,0,0,0,0 };
+	//vector<vector<double>> test = {{ 255/255.0,140/255.0,233/255.0,0/255.0,0/255.0,0/255.0,10/255.0,20/255.0,45/255.0,60/255.0}};
+	//vector<vector<double>> test = {{ 255/255.0,140/255.0,233/255.0,0/255.0}};
+	vector<vector<double>> train_encoders;
+	for (int i = 0;i < train_lbls.size();i++) {
+		temp[train_lbls[i][0]] = 1;
+		train_encoders.push_back(temp);
+		temp[train_lbls[i][0]] = 0;
+	}
+	double** d_train_imgs, **d_train_encoders, **d_test;
+	//cudaAllocate2dOffVectorHostRef(&d_test, test);
+	cudaAllocate2dOffVectorHostRef(&d_train_imgs, train_imgs);
+	cudaAllocate2dOffVectorHostRef(&d_train_encoders, train_encoders);
+	int size = test_imgs[0].size();
+	
+	clock_t gpu_start, gpu_end;
+	vector<double> out;
+	vector<double> o;
+
+	out = mlp->Wrun(train_imgs[0]);
+	//printf("\n\n\n");
+	o = mlpara->getRun(d_train_imgs[0]);
 
 
-	vector<vector<double>> labels;
-	for (int i = 1;i < 10; i++) {
-		labels.push_back(vector<double>());
-		for (int j = 1;j < 10;j++) {
-			if (i == j) labels[i - 1].push_back(1.0);
-			else labels[i - 1].push_back(0.0);
-			cout << labels[i - 1][j - 1] << " ";
+	clock_t start, end;
+	//start = clock();
+	//o = mlpara->getRun(d_train_imgs[0]);
+	//end = clock();
+	//printExecution("GPU", start, end);
+	//start = clock();
+	//out = mlp->Wrun(train_imgs[0]);
+	//end = clock();
+	//printExecution("CPU", start, end);
+
+	double l;
+	//clock_t start, end;
+	//start = clock();
+	//for (int i = 0;i < 250;i++) {
+	//	l = mlpara->bp(d_train_imgs[i], d_train_encoders[i]);
+	//	//o = mlpara->getRun(d_train_imgs[i]);
+	//	//loss = mlp->Wbp(train_imgs[i], train_encoders[i]);
+	//	//out = mlp->Wrun(train_imgs[i]);
+	//}
+	//end = clock();
+	//printExecution("GPU", start, end);
+	//start = clock();
+	//for (int i = 0;i < 250;i++) {
+	//	loss = mlp->Wbp(train_imgs[i], train_encoders[i]);
+	//}
+	//end = clock();
+	//printExecution("CPU", start, end);
+
+
+	l = 0.0;
+	loss = 0.0;
+
+	
+
+
+	gpu_start = clock();	
+	for (int j = 0;j < 4;j++) {
+		for (int i = 0;i < train_lbls.size();i++) {
+			l += mlpara->bp(d_train_imgs[i], d_train_encoders[i]);
+			//loss += mlp->Wbp(train_imgs[i], train_encoders[i]);
+			//cout << i << " : " << MSE << endl;
+			if (i % 250 == 0) {
+				gpu_end = clock();
+				//cout << "Epoch " << i << " MSE: " << loss / 250 << endl;
+				cout << "Epoch " << i << " MSE: " << l / 250 << endl;
+				l = 0.0;
+				printExecution("Time taken", gpu_start, gpu_end);
+				gpu_start = clock();
+				loss = 0.0;
+			}
 		}
-		cout << endl;
 	}
 
-	for (int i = 0;i < 100;i++) {
-		MSE = 0.0;
-		for (int j = 0;j < 9;j++) {
-			//cout << (double)j << endl;
-			MSE += mlp->bp(inputs[j], labels[j]);
+	double** d_test_imgs = new double* [test_imgs.size()];
+	cudaAllocate2dOffVectorHostRef(&d_test_imgs, test_imgs);
+
+	double correct = 0.0;
+    for (int i = 0;i < test_lbls.size();i++) {
+		//vector<double> out = mlpara->getCleanRun(d_test_imgs[i]);
+		vector<double> out = mlpara->getRun(d_test_imgs[i]);
+		//vector<double> out = mlp->Wrun(test_imgs[i]);
+		int ans = 0;
+		double top = 0.0;
+		for (int i = 0;i < 10;i++) 
+			if (out[i] > top) {
+			top = out[i];
+			ans = i;
 		}
-		MSE /= 9;
-		cout << i << " : " << MSE << endl;
-		if (i % 100 == 0)
-			cout << "Epoch " << i << " MSE: " << MSE << endl;
-	}
-
-
+		cout << "image " << i << ": [";
+		for (int i = 0;i < 10;i++) cout << out[i] << ", ";
+		cout << "] " << ans << " : " << test_lbls[i][0] << endl;
+		if (ans == test_lbls[i][0]) correct++;
+    }
+	double accuracy = correct / (double)test_lbls.size();
+	printf("\n\nAccuracy ====== %f\n.... %f correct out of %d tests\n", accuracy, correct, test_lbls.size());
 
 
 

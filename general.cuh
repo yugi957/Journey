@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>;
+#include <vector>
+#include "general.h"
+
+using namespace std;
 #define gpuErrorchk(ans) {	gpuAssert((ans), __FILE__, __LINE__);}
 
 inline void gpuAssert(cudaError code, const char* file, int line, bool abort = true) {
@@ -12,3 +16,24 @@ inline void gpuAssert(cudaError code, const char* file, int line, bool abort = t
 		if (abort) exit(code);
 	}
 }
+
+void cudaAllocate2dOffVectorHostRef(double*** d_inputs, vector<vector<double>> h_inputs);
+
+void cudaAllocate3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> h_a);
+
+void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs, int** lengths);
+void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs);
+
+void cudaAllocate3dOffVector(double** d_inputs, vector<vector<vector<double>>> h_inputs);
+
+void cudaMemcpy2dOffVector(double** d_a, vector<vector<double>> h_inputs);
+
+void cudaMemcpy3dOffVector(double** d_a, vector<vector<vector<double>>> h_inputs);
+
+void cudaMemcpy3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> h_a);
+
+vector<vector<double>> cudaCopy2dBackToVector(double** d_a, vector<int> lengths);
+
+vector<vector<vector<double>>> cudaCopy3dBackToVector(double** d_a, vector<vector<int>> lengths);
+
+vector<double> cudaCopy2dBackTo1dVector(double** d_a, vector<int> lengths);

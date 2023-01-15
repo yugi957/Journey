@@ -34,7 +34,9 @@ void sobelEdges(unsigned char** data, int height, int width, int channels);
 
 void prewittEdges(unsigned char** data, int height, int width, int channels);
 
-void pooling(unsigned char** data, int height, int width, int channels, int poolSize);
+unsigned char* maxPooling(unsigned char** data, int height, int width, int channels, int poolSize);
 
 unsigned char* avgPooling(unsigned char** data, int height, int width, int channels, int poolSize);
+
+unsigned char* upscale(unsigned char** data, int height, int width, int channels, int scale);
 

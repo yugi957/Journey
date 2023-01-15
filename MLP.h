@@ -10,61 +10,56 @@
 
 using namespace std;
 
+enum activation_function {
+	SIGMOID,
+	RELU,
+	SOFTMAX
+};
+
+enum loss_function {
+	MSE,
+	CROSS_ENTROPY
+};
 
 class Perceptron {
 public:
-	Perceptron(int inputs, double bias = 1.0);
+	Perceptron();
+	Perceptron(int inputs, activation_function func, double bias = 1.0);
 	vector<double> weights;
 	double bias;
+	activation_function A_F;
 	double run(vector<double> x);
+	double run(vector<double> x, vector<double> w);
 	void set_weights(vector<double> w_init);
 	double activation(double x);
 };
 
-
-/*
-class Perceptron {
-	public:
-		vector<double> weights;
-		double bias;
-		Perceptron(int inputs, double bias=1.0);
-		double run(vector<double> x);
-		void set_weights(vector<double> w_init);
-		double sigmoid(double x);
-};
-/*
-
-/*
-class MultiLayerPerceptron {
-	public:
-		MultiLayerPerceptron(vector<int> cells_in_layer, double bias=1.0, double eta=0.5);
-
-		vector<int> cells_in_layer; //num of cells in layer i
-		double bias;
-		double eta; //learning rate
-		vector<vector<Perceptron>> network;
-		vector<vector<double>> outputs; // cell outputs
-		vector<vector<double>> error_terms; //errors terms of neurons
-
-		void set_weights(vector<vector<vector<double>>> w_init);
-		void print_weights();
-		vector<double> run(vector<double> x); //I believe x is input
-		double bp(vector<double> x, vector<double> y); //must be backprop
-};
-*/
-
 class MultiLayerPerceptron {
 public:
-	MultiLayerPerceptron(vector<int> cells_in_layer, double bias = 1.0, double eta = 0.5);
+	MultiLayerPerceptron();
+	MultiLayerPerceptron(vector<int> cells_in_layer, loss_function func, double bias = 1.0, double eta = 0.5);
 	void set_weights(vector<vector<vector<double> > > w_init);
 	void print_weights();
+	void addLayer(int CIL, activation_function func);
+	double run(vector<double> x, vector<double> w, activation_function A_F, int layer);
+	vector<double> softmax(vector<double> x, vector<vector<double>> w);
+	double activation(double x, activation_function A_F);
+	double activationDerivative(double x, activation_function A_F);
 	vector<double> run(vector<double> x);
+	vector<double> Wrun(vector<double> x);
+	vector<vector<double>> Wout(vector<double> x);
+	double getLoss(vector<double> x, vector<double> y);
+	double lossDerivative(double x, double y, loss_function L_F);
 	double bp(vector<double> x, vector<double> y);
+	double Wbp(vector<double> x, vector<double> y);
 
 	vector<int> cells_in_layer;
 	double bias;
 	double eta;
+	loss_function L_F;
+	vector<activation_function> A_Fs;
 	vector<vector<Perceptron> > network;
+	vector<vector<vector<double>>> h_weights;
 	vector<vector<double> > outputs;
 	vector<vector<double> > error_terms;
 };
