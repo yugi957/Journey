@@ -225,6 +225,15 @@ vector<double> cudaCopy2dBackTo1dVector(double** d_a, vector<int> lengths) {
 	return out;
 }
 
+vector<vector<double>> cudaCopy2dBackToVectorHref(double** d_a, vector<int> lengths) {
+	vector<vector<double>> a = vector<vector<double>>(lengths.size());
+	for (int i = 0;i < lengths.size();i++) {
+		a[i] = vector<double>(lengths[i]);
+		cudaMemcpy(&a[i][0], &(*d_a)[i], sizeof(double) * lengths[i], cudaMemcpyDeviceToHost);
+	}
+	return a;
+}
+
 vector<vector<vector<double>>> cudaCopy3dBackToVectorHref(double*** d_a, vector<vector<int>> lengths) {
 	vector<vector<vector<double>>> a;
 	double** h_a_href = new double* [lengths.size()];
@@ -260,7 +269,7 @@ vector<vector<double>> cudaCopyBatchBackToVectorHref(double** d_a, int size, int
 	vector<vector<double>> out(batchSize, vector<double>(size));
 	for (int i = 0;i < batchSize;i++) {
 		cudaMemcpy(&out[i][0], &(*d_a)[i * size], sizeof(double) * size, cudaMemcpyDeviceToHost);
-		//printf("COPYING::: %d\n", out[i][0]);
+		//printf("COPYING::: %f\n", out[i][0]);
 	}
 	return out;
 }

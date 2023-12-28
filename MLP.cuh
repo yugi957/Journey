@@ -27,6 +27,7 @@ public:
 	MultiLayerParatron(vector<int> cells_in_layer, loss_function func, double bias = 1.0, double eta = 0.5, int batchSize = 0);
 	void addLayer(int CIL, activation_function func);
 	void finalize();
+
 	vector<double> run(vector<double> x);
 	void run(double* d_x);
 	vector<double> getRun(double* d_x);
@@ -36,18 +37,22 @@ public:
 	vector<double> getCleanRun(double* d_x);
 	void batchRun(double* d_batchX);
 	vector<vector<double>> getBatchRun(double* d_batchX);
+
 	double getLoss(vector<double> x, vector<double> y);
 	void getLoss(double* x, double* y);
 	void bLoss(double* x, double* y);
+
 	double bp(vector<double> x, vector<double> y);
 	double bp(double* x, vector<double> y);
 	double bp(double* x, double* y);
-	double bugBp(double** x, double** y);
-	double batchBp(double* x, double* y);
 	double cleanbp(double* x, vector<double> y);
 	double cleanbp(double* x, double* y);
 	double cleanerbp(double* x, double* y);
+	vector<vector<double>> MultiLayerParatron::getCleanerBp(double* x, double* y);
+
 	double batchP(double* batchX, double* batchY);
+	vector<vector<double>> getBatchP(double* batchX, double* batchY);
+
 	vector<vector<Paratron> > network;
 	vector<vector<vector<double>>> h_weights;
 	vector<vector<int>> weight_lengths;

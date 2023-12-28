@@ -131,3 +131,49 @@ void transpose(int* mat, int* trans, int nx, int ny) {
 		}
 	}
 }
+
+void average3D(vector<vector<vector<double>>>* a, vector<vector<double>>* b) {
+	double sum;
+	int bSize = a->size();
+
+	for (int l = 0;l < (*a)[0].size();l++) {
+		for (int n = 0;n < (*a)[0][l].size();n++) {
+			sum = 0;
+			for (int b = 0;b < bSize;b++) {
+				sum += (*a)[b][l][n];
+			}
+			(*b)[l][n] = sum / bSize;
+		}
+	}
+
+}
+
+void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> b) {
+	for (int i = 0;i < a.size();i++) {
+		for (int j = 0;j < a[i].size();j++) {
+			for (int k = 0;k < a[i][j].size();k++) {
+				if (a[i][j][k] != b[i][j][k]) {
+					printf("%f :: %f\n", a[i][j][k], b[i][j][k]);
+					printf("\nARRAYS ARE DIFFERENT\n\n");
+					return;
+				}
+			}
+		}
+	}
+	printf("SUCCESS Arrays are the same\n");
+}
+
+void compare2D(vector<vector<double>> a, vector<vector<double>> b) {
+	for (int i = 0;i < a.size();i++) {
+		for (int j = 0;j < a[i].size();j++) {
+				if (a[i][j] - b[i][j] < -1 * .0001 && a[i][j] - b[i][j] > .0001) {
+					printf("%f :: %f\n", a[i][j], b[i][j]);
+					printf("---- %f ----\n", a[i][j] - b[i][j]);
+					printf("DIFFERENCE IN Layer %d, index %d\n", i, j);
+					printf("\nARRAYS ARE DIFFERENT\n\n");
+					return;
+			}
+		}
+	}
+	printf("SUCCESS Arrays are the same\n");
+}

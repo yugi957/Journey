@@ -41,3 +41,6 @@ int getSum(int* a, int size);
 int getSum(double* a, int size);
 
 void transpose(int* mat, int* trans, int nx, int ny);
+void average3D(vector<vector<vector<double>>>* a, vector<vector<double>>* b);
+void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> b);
+void compare2D(vector<vector<double>> a, vector<vector<double>> b);

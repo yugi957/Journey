@@ -21,7 +21,7 @@ int main() {
     getMNIST(&train_imgs, &train_lbls, &test_imgs, &test_lbls);
 	
     int s = train_imgs[0].size();
-	int batchSize = 20;
+	int batchSize = 16;
 	cout << "\n\n----------IMAGE CLASSIFIER----------\n\n";
 
 	printf("Size: %d\n", train_imgs[0].size());
@@ -107,16 +107,15 @@ int main() {
 			//}
 			//vector<vector<double>> out = mlpar->getBatchRun(d_x_batches[i]);
 			//compare2D(out, cleanOut);
-			//for(int j = i * batchSize;j < batchSize;j++) l += mlpara->cleanerbp(d_train_imgs[j], d_train_encoders[j]);
-			//for (int k = i * batchSize;k < (i + 1) * batchSize;k++) loss += mlpara->cleanerbp(d_train_imgs[k], d_train_encoders[k]);
+			//for (int k = i * batchSize;k < (i + 1) * batchSize;k++) l += mlpara->cleanerbp(d_train_imgs[k], d_train_encoders[k]);
+
 			loss += mlpar->batchP(d_x_batches[i], d_y_batches[i]);
-			//out = cudaCopyBatchBackToVectorHref(&mlpar->d_batch_errors_href[2], 10, batchSize);
-			//compare3D(mlpar->h_weights, mlpara->h_weights);
-			//loss += mlp->Wbp(train_imgs[i], train_encoders[i]);
-			//cout << i << " : " << MSE << endl;
+			//out = mlpar->getBatchP(d_x_batches[i], d_y_batches[i]);
+			//cleanOut = mlpara->getCleanerBp(d_train_imgs[i], d_train_encoders[i]);
+			//compare2D(out, cleanOut);
 			if (i % (250 / batchSize) == 0) {
 				gpu_end = clock();
-				//cout << "Ground Example " << i << " error: " << l / (12 * batchSize) << endl;
+				cout << "Ground Example " << i << " error: " << l / (batchSize * (250/batchSize)) << endl;
 				cout << "Epoch: " << j << ", Example " << i * batchSize << " error: " << loss / (250/ batchSize) << endl;
 				cout << endl;
 				l = 0.0;

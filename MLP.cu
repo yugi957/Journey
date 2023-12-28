@@ -630,6 +630,14 @@ double MultiLayerParatron::cleanerbp(double* x, double* y) {
     return *loss;
 }
 
+vector<vector<double>> MultiLayerParatron::getCleanerBp(double* x, double* y) {
+    int layers = cells_in_layer.size();
+    cleanerbp(x, y);
+    return cudaCopy2dBackToVectorHref(d_error_terms_href, vector<int>({ 512,512,10 }));
+    //return cudaCopy2dBackToVectorHref(&d_error_terms_href[layers - 1], vector<int>({10}));
+    //return cudaCopy2dBackToVectorHref(d_weights_href, vector<int>({ 785 * 512,513 * 512,513 * 10 }));
+}
+
 double MultiLayerParatron::batchP(double* batchX, double* batchY) {
 
     //get outputs
@@ -663,7 +671,7 @@ double MultiLayerParatron::batchP(double* batchX, double* batchY) {
 
     for (int b = 0;b < batchSize;b++) {
         for (int i = 0;i < cells_in_layer.size() - 1;i++) {
-            batchUpdateWeightsbyLayer << <cells_in_layer[i] + 1, cells_in_layer[i + 1] >> > (d_batch_grad_href[i], d_batch_errors_href[i], d_batch_outs_href[i], eta, cells_in_layer[i], cells_in_layer[i + 1], bias, b);
+            batchUpdateWeightsbyLayer << <cells_in_layer[i] + 1, cells_in_layer[i + 1] >> > (d_weights_href[i], d_batch_errors_href[i], d_batch_outs_href[i], eta, cells_in_layer[i], cells_in_layer[i + 1], bias, b);
             gpuErrorchk(cudaDeviceSynchronize());
         }
     }
@@ -678,4 +686,12 @@ double MultiLayerParatron::batchP(double* batchX, double* batchY) {
     //this->h_weights = cudaCopy3dBackToVectorHref(&d_weights_href, weight_lengths);
 
     return *loss;
+}
+
+vector<vector<double>> MultiLayerParatron::getBatchP(double* batchX, double* batchY) {
+    int layers = cells_in_layer.size();
+    batchP(batchX, batchY);
+    return cudaCopy2dBackToVectorHref(d_batch_errors_href, vector<int>({512,512,10}));
+    //return cudaCopyBatchBackToVectorHref(&d_batch_outs_href[layers - 1], cells_in_layer[layers - 1], batchSize);
+    //return cudaCopy2dBackToVectorHref(d_weights_href, vector<int>({ 785*512,513*512,513*10 }));
 }
