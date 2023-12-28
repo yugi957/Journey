@@ -2,4 +2,7 @@
 *.vcxproj.user
 *.vcxproj.filters
 x64/
-
+*.txt
+*.bmp
+*.jpg
+*.gz

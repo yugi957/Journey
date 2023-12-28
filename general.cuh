@@ -17,7 +17,9 @@ inline void gpuAssert(cudaError code, const char* file, int line, bool abort = t
 	}
 }
 
-void cudaAllocate2dOffVectorHostRef(double*** d_inputs, vector<vector<double>> h_inputs);
+void cudaAllocate2dOffVectorHostRef(double*** d_inputs, vector<vector<double>> h_inputs, bool vocal = false);
+
+void cudaAllocateFull2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, int batchSize);
 
 void cudaAllocate3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> h_a);
 
@@ -35,5 +37,10 @@ void cudaMemcpy3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> 
 vector<vector<double>> cudaCopy2dBackToVector(double** d_a, vector<int> lengths);
 
 vector<vector<vector<double>>> cudaCopy3dBackToVector(double** d_a, vector<vector<int>> lengths);
+vector<vector<vector<double>>> cudaCopy3dBackToVectorHref(double*** d_a, vector<vector<int>> lengths);
+vector<vector<double>> cudaCopyBatchBackToVectorHref(double** d_a, int size, int batchSize);
 
 vector<double> cudaCopy2dBackTo1dVector(double** d_a, vector<int> lengths);
+
+double*** createBatches(double** hr_a, int batchSize, int examples, int size);
+vector<vector<double>> batchify(vector<vector<double>>* data, int batchSize);
