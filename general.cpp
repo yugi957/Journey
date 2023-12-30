@@ -163,17 +163,48 @@ void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> 
 	printf("SUCCESS Arrays are the same\n");
 }
 
-void compare2D(vector<vector<double>> a, vector<vector<double>> b) {
+bool compare2D(vector<vector<double>> a, vector<vector<double>> b) {
 	for (int i = 0;i < a.size();i++) {
 		for (int j = 0;j < a[i].size();j++) {
-				if (a[i][j] - b[i][j] < -1 * .0001 && a[i][j] - b[i][j] > .0001) {
+				if (a[i][j] - b[i][j] < -1 * .000001 && a[i][j] - b[i][j] > .000001) {
+				//if(a[i][j] == b[i][j]){
 					printf("%f :: %f\n", a[i][j], b[i][j]);
 					printf("---- %f ----\n", a[i][j] - b[i][j]);
 					printf("DIFFERENCE IN Layer %d, index %d\n", i, j);
 					printf("\nARRAYS ARE DIFFERENT\n\n");
-					return;
+					return false;
 			}
 		}
 	}
 	printf("SUCCESS Arrays are the same\n");
+	return true;
+}
+
+void shuffleData(std::vector<std::vector<double>>& images, std::vector<std::vector<double>>& labels) {
+	// Seed with a real random value, if available
+	std::random_device rd;
+
+	// Create a random number generator
+	std::mt19937 g(rd());
+
+	// Create a vector of indices
+	std::vector<size_t> indices(images.size());
+	std::iota(indices.begin(), indices.end(), 0);
+
+	// Shuffle the indices
+	std::shuffle(indices.begin(), indices.end(), g);
+
+	// Create temporary vectors to hold the shuffled data
+	std::vector<std::vector<double>> shuffledImages(images.size());
+	std::vector<std::vector<double>> shuffledLabels(labels.size());
+
+	// Rearrange the data according to the shuffled indices
+	for (size_t i = 0; i < indices.size(); ++i) {
+		shuffledImages[i] = images[indices[i]];
+		shuffledLabels[i] = labels[indices[i]];
+	}
+
+	// Swap the shuffled data with the original data
+	images.swap(shuffledImages);
+	labels.swap(shuffledLabels);
 }

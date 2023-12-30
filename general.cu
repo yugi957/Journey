@@ -11,6 +11,22 @@ void cudaAllocate2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, b
 	if (vocal) printf("\n");
 }
 
+void cudaFree2dHostRef(double*** d_a, int size) {
+	for (int i = 0;i < size;i++) {
+		cudaFree((*d_a)[i]);
+	}
+}
+
+void cudaMemCopy2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, bool vocal) {
+	*d_a = new double* [h_a.size()];
+	for (int i = 0;i < h_a.size();i++) {
+		if (vocal) printf("size %d: %d\n", i, h_a[i].size());
+		//cudaMalloc((void**)&(*d_a)[i], sizeof(double) * h_a[i].size());
+		cudaMemcpy((*d_a)[i], &(h_a)[i][0], sizeof(double) * h_a[i].size(), cudaMemcpyHostToDevice);
+	}
+	if (vocal) printf("\n");
+}
+
 void cudaAllocateFull2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, int batchSize) {
 	*d_a = new double* [batchSize];
 	int size = 0;
@@ -229,7 +245,7 @@ vector<vector<double>> cudaCopy2dBackToVectorHref(double** d_a, vector<int> leng
 	vector<vector<double>> a = vector<vector<double>>(lengths.size());
 	for (int i = 0;i < lengths.size();i++) {
 		a[i] = vector<double>(lengths[i]);
-		cudaMemcpy(&a[i][0], &(*d_a)[i], sizeof(double) * lengths[i], cudaMemcpyDeviceToHost);
+		gpuErrorchk(cudaMemcpy(&a[i][0], &(*d_a)[i], sizeof(double) * lengths[i], cudaMemcpyDeviceToHost));
 	}
 	return a;
 }

@@ -924,14 +924,14 @@ __global__ void getLossSeq(double* x, double* y, double* loss, loss_function* L_
 		break;
 	case(CROSS_ENTROPY):
 		for (int i = 0;i < size;i++) {
-			if (x[i] == 0.0) x[i] = 0.00001;
-			*loss -= y[i] * log(x[i]);
+			if (x[i] == 0.0) *loss -= y[i] * log(0.00001);
+			else *loss -= y[i] * log(x[i]);
 			//printf("prediction: %f ; actual: %f\n", x[i], y[i]);
-			//printf("%f * %f = %f\n", y[i], log(x[i]), y[i] * log(x[i]));
+			//printf("clean: %f * %f = %f\n", y[i], log(x[i]), y[i] * log(x[i]));
 		}
 		break;
 	}
-	//printf("\n");
+	//printf("clean loss: %f\n", *loss);
 }
 
 __global__ void batchLoss(double* x, double* y, double* loss, loss_function L_F, int size, int batchSize) {
@@ -964,7 +964,7 @@ __global__ void batchLoss(double* x, double* y, double* loss, loss_function L_F,
 			}
 			//if (testx != 1 || testy != 1) {
 				//printf("testx: %f\n", testx);
-				//printf("testx: %f\n", testy);
+				//printf("testy: %f\n", testy);
 				//printf("\n");
 			//}
 			break;
@@ -1116,18 +1116,17 @@ __global__ void updateWeightsbyLayer(double* weights, double* error_terms, doubl
 
 __global__ void cleanUpdateWeightsbyLayer(double* weights, double* error_terms, double* outputs, double eta, int CIL, int forCIL, double bias) {
 	if (threadIdx.x > forCIL || blockIdx.x > CIL) return;
-	int wid = (CIL + 1) * threadIdx.x + blockIdx.x;
+	int wid = gridDim.x * threadIdx.x + blockIdx.x;
 	double delta = eta * error_terms[threadIdx.x] * outputs[blockIdx.x];
 	//if (threadIdx.x == 0 && blockIdx.x == 0) printf("weight: %f\n", weights[wid]);
 	if (blockIdx.x == CIL) delta = eta * error_terms[threadIdx.x] * bias;
 	weights[wid] -= delta;
 }
 
-__global__ void batchMakeGradient(double* grad, double* error_terms, double* outputs, double eta, int CIL, int forCIL, double bias) {
-	if (threadIdx.x > forCIL || blockIdx.y > CIL || blockIdx.x >= gridDim.x) return;
-	//int batchId = blockIdx.x * 
+__global__ void batchMakeGradient(double* grad, double* error_terms, double* outputs, double eta, int CIL, int forCIL, double bias, int batchSize) {
 	int blockId = blockIdx.x * (CIL + 1) * forCIL;
 	int gid = blockId + (CIL + 1) * threadIdx.x + blockIdx.y;
+	if (gid > (CIL + 1) * forCIL * batchSize) return;
 
 	int err_offset = forCIL * blockIdx.x;
 	double* local_errors = error_terms + err_offset;
@@ -1139,7 +1138,7 @@ __global__ void batchMakeGradient(double* grad, double* error_terms, double* out
 
 	//if (threadIdx.x == 0 && blockIdx.x == 0) printf("weight: %f ; batch: %d ; err_offset: %d ; out_offset: %d\n", weights[wid], batch, err_offset, out_offset);
 	double delta = eta * local_errors[threadIdx.x] * local_outs[blockIdx.y];
-	if (blockIdx.x == CIL) delta = eta * local_errors[threadIdx.x] * bias;
+	if (blockIdx.y == CIL) delta = eta * local_errors[threadIdx.x] * bias;
 	grad[gid] = delta;
 }
 
@@ -1221,9 +1220,9 @@ __global__ void backpropagation(double* loss, double* x, double* y, double* erro
 
 //This memory is really fragmented, but you get way more threads going off of cell than batchSize
 __global__ void averageGrad(double* batch_grad, double* gradient, int batchSize, int size, int for_size) {
-	int gid = threadIdx.x * size + threadIdx.x; //cell Id given error_term layer ; weights point to this cell
+	int gid = threadIdx.x * size + blockIdx.x; //cell Id given error_term layer ; weights point to this cell
 	int batch = size * for_size;
-	if (gid > size  * for_size) return;
+	if (gid > size * for_size) return;
 
 
 	double sum = 0.0;
@@ -1235,10 +1234,10 @@ __global__ void averageGrad(double* batch_grad, double* gradient, int batchSize,
 }
 
 __global__ void applyGrad(double* weights, double* gradient, int size) {
-	int gid = threadIdx.x * size + blockIdx.x;
-	if (gid > size * blockDim.x) return;
+	int gid = threadIdx.x * gridDim.x + blockIdx.x;
+	if (gid > size) return;
 
-	weights[gid] = gradient[gid];
+	weights[gid] -= gradient[gid];
 }
 
 __global__ void setArray(double* a, double* b, int size) {

@@ -52,6 +52,8 @@ public:
 
 	double batchP(double* batchX, double* batchY);
 	vector<vector<double>> getBatchP(double* batchX, double* batchY);
+	double aveBatchP(double* batchX, double* batchY);
+	vector<vector<double>> MultiLayerParatron::getAveP(double* batchX, double* batchY);
 
 	vector<vector<Paratron> > network;
 	vector<vector<vector<double>>> h_weights;

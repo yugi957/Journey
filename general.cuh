@@ -18,6 +18,8 @@ inline void gpuAssert(cudaError code, const char* file, int line, bool abort = t
 }
 
 void cudaAllocate2dOffVectorHostRef(double*** d_inputs, vector<vector<double>> h_inputs, bool vocal = false);
+void cudaFree2dHostRef(double*** d_a, int size);
+void cudaMemCopy2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, bool vocal = false);
 
 void cudaAllocateFull2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, int batchSize);
 

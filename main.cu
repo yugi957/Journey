@@ -21,7 +21,7 @@ int main() {
     getMNIST(&train_imgs, &train_lbls, &test_imgs, &test_lbls);
 	
     int s = train_imgs[0].size();
-	int batchSize = 16;
+	int batchSize = 4;
 	cout << "\n\n----------IMAGE CLASSIFIER----------\n\n";
 
 	printf("Size: %d\n", train_imgs[0].size());
@@ -37,7 +37,7 @@ int main() {
 	mlpara->addLayer(512, SIGMOID);
 	mlpara->addLayer(512, SIGMOID);
 	mlpara->addLayer(10, SOFTMAX);
-	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .01, batchSize);
+	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .02, batchSize);
 	mlpar->addLayer(512, SIGMOID);
 	mlpar->addLayer(512, SIGMOID);
 	mlpar->addLayer(10, SOFTMAX);
@@ -79,13 +79,14 @@ int main() {
 	double** d_x_batches, **d_y_batches;
 	cudaAllocate2dOffVectorHostRef(&d_x_batches, x_batches);
 	cudaAllocate2dOffVectorHostRef(&d_y_batches, y_batches);
+	//When shuffling batches, remember to free the batch list and then reallocate
 
 
 	int size = test_imgs[0].size();
 	
 	clock_t gpu_start, gpu_end;
-	vector<double> out;
-	vector<double> o;
+	//vector<double> out;
+	//vector<double> o;
 
 
 	clock_t start, end;
@@ -95,28 +96,22 @@ int main() {
 	l = 0.0;
 	//loss = 0.0;
 	cudaMemcpy(&(*mlpara->d_weights_href[2]), &mlpara->h_weights[2][0][0], sizeof(double), cudaMemcpyHostToDevice);
+	//vector<vector<double>> out, cleanOut, temparr;
+	vector<double> out, cleanOut, temparr;
 
+
+	int progressCheck = 250;
+
+	//batch gradient descent
 	gpu_start = clock();	
-	for (int j = 0;j < 4;j++) {
+	for (int j = 0;j < 5;j++) {
 		for (int i = 0;i < x_batches.size();i++) {
-			//vector<vector<double>> cleanOut(batchSize, vector<double>(10));
-			//for (int k = i * batchSize;k < (i + 1) * batchSize;k++) {
-			//for (int k = i * batchSize;k < i * batchSize + 1;k++) {
-				//printf("batch: %d\n", k);
-				//cleanOut[k - i * batchSize] = mlpara->getCleanRun(d_train_imgs[k]);
-			//}
-			//vector<vector<double>> out = mlpar->getBatchRun(d_x_batches[i]);
-			//compare2D(out, cleanOut);
-			//for (int k = i * batchSize;k < (i + 1) * batchSize;k++) l += mlpara->cleanerbp(d_train_imgs[k], d_train_encoders[k]);
+			loss += mlpar->aveBatchP(d_x_batches[i], d_y_batches[i]);
 
-			loss += mlpar->batchP(d_x_batches[i], d_y_batches[i]);
-			//out = mlpar->getBatchP(d_x_batches[i], d_y_batches[i]);
-			//cleanOut = mlpara->getCleanerBp(d_train_imgs[i], d_train_encoders[i]);
-			//compare2D(out, cleanOut);
-			if (i % (250 / batchSize) == 0) {
+			if (i % (progressCheck / batchSize) == 0) {
 				gpu_end = clock();
-				cout << "Ground Example " << i << " error: " << l / (batchSize * (250/batchSize)) << endl;
-				cout << "Epoch: " << j << ", Example " << i * batchSize << " error: " << loss / (250/ batchSize) << endl;
+				cout << "Ground Example " << i << " error: " << l / (batchSize * (progressCheck /batchSize)) << endl;
+				cout << "Epoch: " << j << ", Example " << i * batchSize << " error: " << loss / (progressCheck / batchSize) << endl;
 				cout << endl;
 				l = 0.0;
 				printExecution("Time taken", gpu_start, gpu_end);
@@ -125,17 +120,28 @@ int main() {
 			}
 		}
 		printf("Epoch %d completed\n", j);
+		shuffleData(train_imgs, train_encoders);
+		x_batches = batchify(&train_imgs, batchSize);
+		y_batches = batchify(&train_encoders, batchSize);
+		//THIS IS CAUSING MEMORY LEAKS
+		cudaFree(&d_x_batches);
+		cudaFree(&d_y_batches);
+		cudaAllocate2dOffVectorHostRef(&d_x_batches, x_batches);
+		cudaAllocate2dOffVectorHostRef(&d_y_batches, y_batches);
+		gpu_end = clock();
+		printExecution("Shuffle Time", gpu_start, gpu_end);
+		gpu_start = clock();
 	}
 
+	//stochastic gradient descent
 	//loss = 0.0;
 	//gpu_start = clock();
 	//for (int j = 0;j < 4;j++) {
 	//	for (int i = 0;i < train_imgs.size();i++) {
 	//		loss += mlpara->cleanerbp(d_train_imgs[i], d_train_encoders[i]);
-	//		if (i % 250 == 0) {
+	//		if (i % progressCheck == 0) {
 	//			gpu_end = clock();
-	//			//cout << "Ground Example " << i << " error: " << l / (12 * batchSize) << endl;
-	//			cout << "Epoch: " << j << ", Example " << i << " error: " << loss / (250) << endl;
+	//			cout << "Epoch: " << j << ", Example " << i << " error: " << loss / (progressCheck) << endl;
 	//			cout << endl;
 	//			l = 0.0;
 	//			printExecution("Time taken", gpu_start, gpu_end);
