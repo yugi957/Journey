@@ -1,5 +1,5 @@
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+//#include "cuda_runtime.h"
+//#include "device_launch_parameters.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>;
@@ -47,3 +47,4 @@ void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> 
 bool compare2D(vector<vector<double>> a, vector<vector<double>> b);
 
 void shuffleData(std::vector<vector<double>>& images, vector<vector<double>>& labels);
+vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize);

@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <fstream>
-#include <vector>
-using namespace std;
+#include "../Headers/MNIST.h"
 
 int reverseInt(int i) {
     unsigned char c1, c2, c3, c4;
@@ -16,8 +12,9 @@ int reverseInt(int i) {
 }
 
 void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_lbls, vector<vector<double>>* test_imgs, vector<vector<double>>* test_lbls) {
-    ifstream train_images("train-images.idx3-ubyte", ios::binary);
-    ifstream train_labels("train-labels.idx1-ubyte", ios::binary);
+    system("cd");
+    ifstream train_images("MLP/data/train-images.idx3-ubyte", ios::binary);
+    ifstream train_labels("MLP/data/train-labels.idx1-ubyte", ios::binary);
 
     if (train_images.is_open() && train_labels.is_open()) {
         int magic_number = 0;
@@ -47,7 +44,7 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
         printf("num of pixels: %d\n", n_cols * n_rows);
         //for (int i = 0;i < number_of_images;++i){
         unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * n_cols * n_rows);
-        for (int i = 0;i < number_of_images;i++) {
+        for (int i = 0;i < 1000;i++) {
             train_imgs->push_back(vector<double>());
             train_lbls->push_back(vector<double>());
             for (int r = 0;r < n_rows;r++) {
@@ -56,7 +53,7 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
                     train_images.read((char*)&temp, sizeof(unsigned char));
                     //if(i > 60000) printf("Byte %d: %u\n", r * n_cols + c, temp);
                     data[r * n_cols + c] = temp;
-                    (*train_imgs)[i].push_back((double)temp/255.0);
+                    (*train_imgs)[i].push_back((double)temp / 255.0);
                 }
             }
             unsigned char label = 0;
@@ -70,8 +67,8 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
         }
     }
 
-    ifstream test_images("t10k-images.idx3-ubyte", ios::binary);
-    ifstream test_labels("t10k-labels.idx1-ubyte", ios::binary);
+    ifstream test_images("MLP/data/t10k-images.idx3-ubyte", ios::binary);
+    ifstream test_labels("MLP/data/t10k-labels.idx1-ubyte", ios::binary);
 
     if (test_images.is_open() && test_labels.is_open()) {
         int magic_number = 0;
@@ -101,7 +98,7 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
         printf("num of pixels: %d\n", n_cols * n_rows);
         //for (int i = 0;i < number_of_images;++i){
         unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * n_cols * n_rows);
-        for (int i = 0;i < number_of_images;i++) {
+        for (int i = 0;i < 1000;i++) {
             test_imgs->push_back(vector<double>());
             test_lbls->push_back(vector<double>());
             for (int r = 0;r < n_rows;r++) {
@@ -110,7 +107,7 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
                     test_images.read((char*)&temp, sizeof(unsigned char));
                     //if(i > 60000) printf("Byte %d: %u\n", r * n_cols + c, temp);
                     data[r * n_cols + c] = temp;
-                    (*test_imgs)[i].push_back((double)temp/255.0);
+                    (*test_imgs)[i].push_back((double)temp / 255.0);
                 }
             }
             unsigned char label = 0;

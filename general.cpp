@@ -166,13 +166,13 @@ void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> 
 bool compare2D(vector<vector<double>> a, vector<vector<double>> b) {
 	for (int i = 0;i < a.size();i++) {
 		for (int j = 0;j < a[i].size();j++) {
-				if (a[i][j] - b[i][j] < -1 * .000001 && a[i][j] - b[i][j] > .000001) {
+			if (a[i][j] - b[i][j] < -1 * .000001 && a[i][j] - b[i][j] > .000001) {
 				//if(a[i][j] == b[i][j]){
-					printf("%f :: %f\n", a[i][j], b[i][j]);
-					printf("---- %f ----\n", a[i][j] - b[i][j]);
-					printf("DIFFERENCE IN Layer %d, index %d\n", i, j);
-					printf("\nARRAYS ARE DIFFERENT\n\n");
-					return false;
+				printf("%f :: %f\n", a[i][j], b[i][j]);
+				printf("---- %f ----\n", a[i][j] - b[i][j]);
+				printf("DIFFERENCE IN Layer %d, index %d\n", i, j);
+				printf("\nARRAYS ARE DIFFERENT\n\n");
+				return false;
 			}
 		}
 	}
@@ -207,4 +207,25 @@ void shuffleData(std::vector<std::vector<double>>& images, std::vector<std::vect
 	// Swap the shuffled data with the original data
 	images.swap(shuffledImages);
 	labels.swap(shuffledLabels);
+}
+
+vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize) {
+	vector<vector<vector<double>>> batches;
+	int examples = data->size();
+	if (examples % batchSize != 0) {
+		printf("BATCHES NOT EVEN");
+		// Throw an exception or return an empty vector
+		throw std::invalid_argument("The number of examples is not evenly divisible by the batch size.");
+	}
+	int num_batches = examples / batchSize;
+	int k = 0;
+
+	for (int i = 0;i < num_batches;i++) {
+		batches.push_back(vector<vector<double>>());
+		for (int j = 0;j < batchSize;j++) {
+			batches[i].push_back((*data)[k]);
+			k++;
+		}
+	}
+	return batches;
 }
