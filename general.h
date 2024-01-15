@@ -48,3 +48,5 @@ bool compare2D(vector<vector<double>> a, vector<vector<double>> b);
 
 void shuffleData(std::vector<vector<double>>& images, vector<vector<double>>& labels);
 vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize);
+
+vector<vector<double>> autoencode(vector<vector<double>> set, int size);

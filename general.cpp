@@ -229,3 +229,14 @@ vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchS
 	}
 	return batches;
 }
+
+vector<vector<double>> autoencode(vector<vector<double>> set, int size) {
+	vector<double> temp(size, 0);
+	vector<vector<double>> res(set.size(), vector<double>(size));
+	for (int i = 0;i < set.size();i++) {
+		temp[set[i][0]] = 1;
+		res[i] = temp;
+		temp[set[i][0]] = 0;
+	}
+	return res;
+}

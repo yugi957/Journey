@@ -307,3 +307,25 @@ double MultiLayerPerceptron::Mbp(vector<double> x, vector<double> y) {
 
     return loss;
 }
+
+void MultiLayerPerceptron::train(vector<vector<double>> train_set, vector<vector<double>> label_set, int epochs, int progressCheck) {
+    double loss = 0.0;
+    clock_t gpu_start, gpu_end;
+    gpu_start = clock();
+    for (int j = 0;j < epochs;j++) {
+        for (int i = 0;i < label_set.size();i++) {
+            //temp[train_lbls[i][0]] = 1;
+            //compare3D(mlp->h_weights, momlp->h_weights);
+            loss += this->Wbp(train_set[i], label_set[i]);
+            //temp[train_lbls[i][0]] = 0;
+            //cout << i << " : " << MSE << endl;
+            if (i % progressCheck == 0) {
+                gpu_end = clock();
+                cout << "ground truth example: " << i << " error: " << loss / progressCheck << endl;
+                printExecution("Time taken", gpu_start, gpu_end);
+                gpu_start = clock();
+                loss = 0.0;
+            }
+        }
+    }
+}

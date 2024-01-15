@@ -35,8 +35,8 @@ public:
 	vector<vector<double>> Wout(vector<double> x);
 	double getLoss(vector<double> x, vector<double> y);
 	double Wbp(vector<double> x, vector<double> y);
-	double MultiLayerPerceptron::Mbp(vector<double> x, vector<double> y);
-	double batchP(vector<vector<double>> x, vector<vector<double>> y);
+	double Mbp(vector<double> x, vector<double> y);
+	void train(vector<vector<double>> train_set, vector<vector<double>> label_set, int epochs, int progressCheck);
 
 	vector<int> cells_in_layer;
 	double bias;

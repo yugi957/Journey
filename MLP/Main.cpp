@@ -68,86 +68,28 @@ int main() {
 	cout << "\n\n----------IMAGE CLASSIFIER----------\n\n";
 
 	printf("Size: %d\n", train_imgs[0].size());
-	//MultiLayerPerceptron* mlp = new MultiLayerPerceptron({s}, CROSS_ENTROPY, 1, .001);
-	//mlp->addLayer(512, SIGMOID);
-	//mlp->addLayer(512, SIGMOID);
-	//mlp->addLayer(10, SOFTMAX);
 	MultiLayerPerceptron* mlp = new MultiLayerPerceptron({ s }, CROSS_ENTROPY, 1, .01);
 	mlp->addLayer(512, SIGMOID);
 	mlp->addLayer(512, SIGMOID);
 	mlp->addLayer(10, SOFTMAX);
-	MultiLayerPerceptron* momlp = new MultiLayerPerceptron({ s }, CROSS_ENTROPY, 1, .01);
-	momlp->addLayer(512, SIGMOID);
-	momlp->addLayer(512, SIGMOID);
-	momlp->addLayer(10, SOFTMAX);
-	MultiLayerPerceptron* batchLP = new MultiLayerPerceptron({ s }, CROSS_ENTROPY, 1, 1, batchSize);
-	batchLP->addLayer(512, SIGMOID);
-	batchLP->addLayer(512, SIGMOID);
-	batchLP->addLayer(10, SOFTMAX);
-	batchLP->finalize();
-	momlp->finalize();
+	MultiLayerPerceptron* testlp = new MultiLayerPerceptron({ s }, CROSS_ENTROPY, 1, .01);
+	testlp->addLayer(512, SIGMOID);
+	testlp->addLayer(512, SIGMOID);
+	testlp->addLayer(10, SOFTMAX);
 	cout << "Training Neural Network as Image Classifier...\n";
-	double loss = 0.0;
-	double l = 0.0;
-
-	for (int i = 0;i < mlp->h_weights.size();i++) {
-		for (int j = 0;j < mlp->h_weights[i].size();j++) {
-			for (int k = 0;k < mlp->h_weights[i][j].size();k++) {
-				momlp->h_weights[i][j][k] = mlp->h_weights[i][j][k];
-			}
-		}
-	}
+	//testlp->h_weights = mlp->h_weights;
+	compare3D(testlp->h_weights, mlp->h_weights);
 
 	printf("Training on %d images and %d labels...\n", train_imgs.size(), train_lbls.size());
 	printf("Batch Size: %d, num_batches: %d\n", batchSize, batches.size());
 
 	int progressCheck = 50;
+	double loss = 0.0;
+	double l = 0.0;
 
-	vector<double> temp = { 0,0,0,0,0,0,0,0,0,0 };
-	clock_t gpu_start, gpu_end;
-	gpu_start = clock();
-	for (int j = 0;j < 4;j++) {
-		for (int i = 0;i < train_lbls.size();i++) {
-			temp[train_lbls[i][0]] = 1;
-			//compare3D(mlp->h_weights, momlp->h_weights);
-			loss += mlp->Wbp(train_imgs[i], temp);
-			l += momlp->Mbp(train_imgs[i], temp);
-			temp[train_lbls[i][0]] = 0;
-			//cout << i << " : " << MSE << endl;
-			if (i % progressCheck == 0) {
-				gpu_end = clock();
-				cout << "ground truth example: " << i << " error: " << loss / progressCheck << endl;
-				cout << "example: " << i << " error: " << l / progressCheck << endl;
-				printExecution("Time taken", gpu_start, gpu_end);
-				gpu_start = clock();
-				loss = 0.0;
-				l = 0.0;
-			}
-		}
-	}
+	vector<vector<double>> labels = autoencode(train_lbls, 10);
 
-	//clock_t gpu_start, gpu_end;
-	//vector<vector<double>> batch_temp;
-	//for (int b = 0;b < batchSize;b++) {
-	//	batch_temp.push_back({ 0,0,0,0,0,0,0,0,0,0 });
-	//}
-	//gpu_start = clock();
-	//for (int j = 0;j < 4;j++) {
-	//	for (int i = 0;i < batches.size();i++) {
-	//		for (int b = 0;b < batchSize;b++) batch_temp[b][train_lbls[i][0]] = 1;
-	//		loss += batchLP->batchP(batches[i], batch_temp);
-	//		for (int b = 0;b < batchSize;b++) batch_temp[b][train_lbls[i][0]] = 0;
-	//		//cout << i << " : " << MSE << endl;
-	//		if (i % 8 == 0) {
-	//			gpu_end = clock();
-	//			cout << "Batch " << i << ", example " << i * batchSize << ", error: " << loss / 8 << endl;
-	//			printExecution("Time taken", gpu_start, gpu_end);
-	//			gpu_start = clock();
-	//			loss = 0.0;
-	//		}
-	//	}
-	//	printf("Epoch %d completed\n", j);
-	//}
+	mlp->train(train_imgs, labels, 4, 50);
 
 	double correct = 0.0;
 	for (int i = 0;i < test_lbls.size();i++) {
