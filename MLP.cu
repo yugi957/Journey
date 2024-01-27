@@ -1,59 +1,22 @@
 #include "MLP.cuh"
 #include "CUDAFunctions.cuh"
 
-
-//perceptron class methods:
-
-
-//return new perceptron with number of inputs + 1 bias
-Paratron::Paratron(int inputs, activation_function func, double bias) {
-    this->bias = bias;
-    this->A_F = func;
-    this->inputSize = inputs;
-    weights.resize(inputs + 1);
-    generate(weights.begin(), weights.end(), frand);
-    cudaMalloc((void**)&this->d_weights, sizeof(double) * (inputs + 1));
-    cudaMalloc((void**)&this->d_vectorInput, sizeof(double) * (inputs));
-    double* temp = &weights[0];
-    cudaMemcpy(this->d_weights, temp, sizeof(double) * (inputs + 1), cudaMemcpyHostToDevice);
-    cudaMalloc((void**)&this->d_bufferProduct, sizeof(double) * inputs);
-
-}
-
-//Run the perceptron with x as input
-double Paratron::run(vector<double> x) {
-    cudaMemcpy(this->d_vectorInput, &x[0], sizeof(double) * inputSize, cudaMemcpyHostToDevice);
-    double sum = innerProduct(d_vectorInput, d_weights, d_bufferProduct, inputSize);
-    sum += bias * weights[inputSize];
-    return activation(sum);
-
-}
-
-double Paratron::run(double* d_x) {
-    //We will add bias weight * bias separately
-    double sum;
-    sum = innerProduct(d_x, d_weights, d_bufferProduct, inputSize - 1);
-    sum += bias * weights[inputSize];
-    return activation(sum);
-}
-
 //MLP class methods:
-MultiLayerParatron::MultiLayerParatron(vector<int> CIL, loss_function func, double bias, double eta, int batchSize) {
+MultiLayerParatron::MultiLayerParatron(vector<int> CIL, loss_function func, double bias, double eta, double momentum, int batchSize) {
     this->cells_in_layer = CIL;
     this->L_F = func;
     this->bias = bias;
     this->eta = eta;
     this->batchSize = batchSize;
+    this->momentum = momentum;
 
     for (int i = 0;i < cells_in_layer.size();i++) {
         outputs.push_back(vector<double>(cells_in_layer[i], 0.0));
         //error_terms.push_back(vector<double>(cells_in_layer[i], 0.0));
-        network.push_back(vector<Paratron>());
         //clock_t gpu_start, gpu_end;
         if (i > 0) { //input layer has no neurons
             for (int j = 0;j < cells_in_layer[i];j++) {
                 //gpu_start = clock();
-                network[i].push_back(Paratron(cells_in_layer[i - 1], SIGMOID, bias));
                 //gpu_end = clock();
                 //printf("%d : %d ", cells_in_layer[i], j);
                 //printExecution("Loop", gpu_start, gpu_end);
@@ -83,6 +46,15 @@ void MultiLayerParatron::finalize() {
     cudaMemcpy(d_CIL, &cells_in_layer[0], size * cells_in_layer.size(), cudaMemcpyHostToDevice);
     cudaAllocate2dOffVector(&d_outputs, outputs);
     cudaAllocate2dOffVectorHostRef(&d_outputs_href, outputs);
+    for (int i = 0;i < h_weights.size();i++) {
+        xavier_init(h_weights[i], h_weights[i][0].size(), h_weights[i].size());
+    }
+    for (int i = 0;i < h_weights.size();i++) {
+        gradient.push_back(vector<vector<double>>());
+        for (int j = 0;j < h_weights[i].size();j++) {
+            gradient[i].push_back(vector<double>(h_weights[i][j].size(), 0));
+        }
+    }
     cudaAllocate3dOffVector(&d_weights, h_weights);
     for (int i = 1;i < cells_in_layer.size();i++) {
         weight_lengths.push_back(vector<int>());
@@ -91,14 +63,10 @@ void MultiLayerParatron::finalize() {
         }
     }
     cudaAllocate3dOffVectorHostRef(&d_weights_href, h_weights);
-    cudaAllocate3dOffVectorHostRef(&d_gradient_href, h_weights);
+    cudaAllocate3dOffVectorHostRef(&d_gradient_href, gradient);
 
-    activation_function* h_A_Fs = new activation_function[network.size()];
-    for (int i = 1;i < network.size();i++) {
-        h_A_Fs[i] = network[i][0].A_F;
-    }
-    cudaMalloc((void**)&d_A_Fs, sizeof(activation_function) * network.size());
-    cudaMemcpy(d_A_Fs, h_A_Fs, sizeof(activation_function) * network.size(), cudaMemcpyHostToDevice);
+    cudaMalloc((void**)&d_A_Fs, sizeof(activation_function) * h_A_Fs.size());
+    cudaMemcpy(d_A_Fs, &h_A_Fs[0], sizeof(activation_function) * h_A_Fs.size(), cudaMemcpyHostToDevice);
     cudaMalloc((void**)&d_L_F, sizeof(loss_function));
     cudaMemcpy(d_L_F, &L_F, sizeof(loss_function), cudaMemcpyHostToDevice);
     cudaMalloc((void**)&d_loss, sizeof(double));
@@ -133,106 +101,12 @@ void MultiLayerParatron::addLayer(int CIL, activation_function func) {
         outputs.push_back(vector<double>(CIL, 0.0));
         error_terms.push_back(vector<double>(CIL, 0.0));
         h_weights.push_back(vector<vector<double>>(CIL, vector<double>(cells_in_layer[LL] + 1, 0.0)));
+        h_A_Fs.push_back(func);
         for (int i = 0;i < CIL;i++) {
             generate(h_weights[LL][i].begin(), h_weights[LL][i].end(), frand);
         }
-        network.push_back(vector<Paratron>());
-        for (int i = 0;i < CIL;i++) {
-            network[LL + 1].push_back(Paratron(cells_in_layer[LL], func, bias));
-        }
     }
     else printf("INITIALIZE NN WITH INPUT LAYER BEFORE ADDING MORE LAYERS");
-}
-
-vector<double> MultiLayerParatron::run(vector<double> x) {
-    outputs[0] = x;
-    for (int i = 1;i < network.size();i++) {
-        for (int j = 0;j < cells_in_layer[i];j++) {
-            outputs[i][j] = network[i][j].run(outputs[i - 1]);
-        }
-    }
-    if (network[network.size() - 1][0].A_F == SOFTMAX) {
-        vector<double> last = outputs.back();
-        //for (int j = 0;j < cells_in_layer.back();j++) {
-        //    double temp = exp(last[j]);
-        //    if (isnan(temp))
-        //        printf("euler wha\n");
-        //    outputs.back()[j] = temp;
-        //}
-        double denom = accumulate(outputs.back().begin(), outputs.back().end(), 0.0);
-        if (denom < DBL_MIN)
-            denom = DBL_MIN;
-        if (isnan(denom))
-            printf("denom wha\n");
-        for (int j = 0;j < cells_in_layer.back();j++) {
-            double temp = outputs.back()[j] / denom;
-            if (isnan(temp))
-                printf("softmax wha\n");
-            outputs.back()[j] /= denom;
-        }
-    }
-    return outputs.back();
-}
-
-vector<double> MultiLayerParatron::getRun(double* d_x) {
-    runMLP << <1, 1 >> > (d_x, d_outputs, d_weights, d_A_Fs, d_CIL, cells_in_layer.size(), bias, d_weightLayerOffsets, d_outputLayerOffsets);
-    cudaDeviceSynchronize();
-    return cudaCopy2dBackToVector(&d_outputs, cells_in_layer).back();
-}
-
-vector<vector<double>> MultiLayerParatron::getOut(double* d_x) {
-
-    runMLP << <1, 1 >> > (d_x, d_outputs, d_weights, d_A_Fs, d_CIL, cells_in_layer.size(), bias, d_weightLayerOffsets, d_outputLayerOffsets);
-    cudaDeviceSynchronize();
-    return cudaCopy2dBackToVector(&d_outputs, cells_in_layer);
-}
-
-void MultiLayerParatron::run(double* d_x) {
-    runMLP << <1, 1 >> > (d_x, d_outputs, d_weights, d_A_Fs, d_CIL, cells_in_layer.size(), bias, d_weightLayerOffsets, d_outputLayerOffsets);
-    cudaDeviceSynchronize();
-}
-
-vector<double> MultiLayerParatron::getCleanRun(double* d_x) {
-    int layers = cells_in_layer.size();
-    if (cells_in_layer[0] > 511) {
-        copyElements << <cells_in_layer[0] / 32 + 1, 32 >> > (d_outputs_href[0], d_x, cells_in_layer[0]);
-        cudaDeviceSynchronize();
-    }
-    else {
-        copySeqElements << <1, 1 >> > (d_outputs_href[0], d_x, cells_in_layer[0]);
-        cudaDeviceSynchronize();
-    }
-    for (int i = 1;i < layers;i++) {
-        runCleanParatron << < (cells_in_layer[i] / 32) + 1, 32 >> > (d_outputs_href[i - 1], d_outputs_href[i], d_weights_href[i - 1], network[i][0].A_F, cells_in_layer[i - 1], cells_in_layer[i], bias);
-        cudaDeviceSynchronize();
-    }
-    if (network[layers - 1][0].A_F == SOFTMAX) {
-        SoftMaxSeq << <1, 1 >> > (d_outputs_href[layers - 1], cells_in_layer[layers - 1]);
-        cudaDeviceSynchronize();
-    }
-    vector<double> out(cells_in_layer[layers - 1], 0.0);
-    cudaMemcpy(&out[0], d_outputs_href[layers - 1], sizeof(double) * cells_in_layer[layers - 1], cudaMemcpyDeviceToHost);
-    return out;
-}
-
-void MultiLayerParatron::cleanRun(double* d_x) {
-    int layers = cells_in_layer.size();
-    if (cells_in_layer[0] > 511) {
-        copyElements << <cells_in_layer[0] / 32 + 1, 32 >> > (d_outputs, d_x, cells_in_layer[0]);
-        cudaDeviceSynchronize();
-    }
-    else {
-        copySeqElements << <1, 1 >> > (d_outputs, d_x, cells_in_layer[0]);
-        cudaDeviceSynchronize();
-    }
-    for (int i = 1;i < layers;i++) {
-        runCleanParatron << < (cells_in_layer[i] / 32) + 1, 32 >> > (d_outputs + outputLayerOffsets[i - 1], d_outputs + outputLayerOffsets[i], d_weights + weightLayerOffsets[i - 1], network[i][0].A_F, cells_in_layer[i - 1], cells_in_layer[i], bias);
-        cudaDeviceSynchronize();
-    }
-    if (network[layers - 1][0].A_F == SOFTMAX) {
-        SoftMaxSeq << <1, 1 >> > (d_outputs + outputLayerOffsets[layers - 1], cells_in_layer[layers - 1]);
-        cudaDeviceSynchronize();
-    }
 }
 
 void MultiLayerParatron::cleanerRun(double* d_x) {
@@ -246,13 +120,21 @@ void MultiLayerParatron::cleanerRun(double* d_x) {
         cudaDeviceSynchronize();
     }
     for (int i = 1;i < layers;i++) {
-        runCleanParatron << < (cells_in_layer[i] / 32) + 1, 32 >> > (d_outputs_href[i-1], d_outputs_href[i], d_weights_href[i-1], network[i][0].A_F, cells_in_layer[i - 1], cells_in_layer[i], bias);
+        runCleanParatron << < (cells_in_layer[i] / 32) + 1, 32 >> > (d_outputs_href[i-1], d_outputs_href[i], d_weights_href[i-1], h_A_Fs[i-1], cells_in_layer[i - 1], cells_in_layer[i], bias);
         cudaDeviceSynchronize();
     }
-    if (network[layers - 1][0].A_F == SOFTMAX) {
+    if (h_A_Fs[layers-2] == SOFTMAX) {
         SoftMaxSeq << <1, 1 >> > (d_outputs_href[layers-1], cells_in_layer[layers - 1]);
         cudaDeviceSynchronize();
     }
+}
+
+vector<double> MultiLayerParatron::getRun(double* d_x) {
+    int layers = cells_in_layer.size();
+    cleanerRun(d_x);
+    vector<double> out(cells_in_layer[layers - 1], 0.0);
+    cudaMemcpy(&out[0], d_outputs_href[layers - 1], sizeof(double) * cells_in_layer[layers - 1], cudaMemcpyDeviceToHost);
+    return out;
 }
 
 void MultiLayerParatron::batchRun(double* d_batchX) {
@@ -267,10 +149,10 @@ void MultiLayerParatron::batchRun(double* d_batchX) {
         gpuErrorchk(cudaDeviceSynchronize());
     }
     for (int i = 1;i < layers;i++) {
-        runBatchParatron << < dim3(batchSize, (cells_in_layer[i] / 32) + 1), 32 >> > (d_batch_outs_href[i - 1], d_batch_outs_href[i], d_weights_href[i - 1], network[i][0].A_F, cells_in_layer[i - 1], cells_in_layer[i] * batchSize, cells_in_layer[i], bias);
+        runBatchParatron << < dim3(batchSize, (cells_in_layer[i] / 32) + 1), 32 >> > (d_batch_outs_href[i - 1], d_batch_outs_href[i], d_weights_href[i - 1], h_A_Fs[i-1], cells_in_layer[i - 1], cells_in_layer[i] * batchSize, cells_in_layer[i], bias);
         gpuErrorchk(cudaDeviceSynchronize());
     }
-    if (network[layers - 1][0].A_F == SOFTMAX) {
+    if (h_A_Fs[layers-2] == SOFTMAX) {
         batchSoftMax << <1, batchSize >> > (d_batch_outs_href[layers - 1], cells_in_layer[layers - 1], batchSize);
         gpuErrorchk(cudaDeviceSynchronize());
     }
@@ -282,26 +164,6 @@ vector<vector<double>> MultiLayerParatron::getBatchRun(double* d_batchX) {
     return cudaCopyBatchBackToVectorHref(&d_batch_outs_href[layers - 1], cells_in_layer[layers - 1], batchSize);
 }
 
-double MultiLayerParatron::getLoss(vector<double> x, vector<double> y) {
-    double loss = 0.0;
-    switch (L_F) {
-    case(MSE):
-        for (int i = 0;i < x.size();i++) {
-            loss += pow((x[i] - y[i]), 2);
-        }
-        loss /= x.size();
-        return loss;
-        break;
-    case(CROSS_ENTROPY):
-        for (int i = 0;i < x.size();i++) {
-            if (x[i] == 0.0) x[i] = 0.00001;
-            loss -= y[i] * (double)log(x[i]);
-        }
-        return loss;
-        break;
-    }
-}
-
 void MultiLayerParatron::getLoss(double* x, double* y) {
     getLossSeq << <1, 1 >> > (x, y, d_loss, d_L_F, cells_in_layer[cells_in_layer.size() - 1]);
     cudaDeviceSynchronize();
@@ -310,294 +172,6 @@ void MultiLayerParatron::getLoss(double* x, double* y) {
 void MultiLayerParatron::bLoss(double* x, double* y) {
     batchLoss << <1, 1 >> > (x, y, d_loss, CROSS_ENTROPY, cells_in_layer[cells_in_layer.size() - 1], batchSize);
     gpuErrorchk(cudaDeviceSynchronize());
-}
-
-double MultiLayerParatron::bp(vector<double> x, vector<double> y) {
-    //get outputs
-    clock_t run_start, run_end;
-    run_start = clock();
-    vector<double> o = run(x);
-    double su = getSum(o);
-    if (isnan(o[0]) || (L_F == CROSS_ENTROPY && (su < .9988888 || su > 1.0011111)))
-        printf("o wha\n");
-    run_end = clock();
-
-    //get loss
-    clock_t mse_start, mse_end;
-    mse_start = clock();
-    double loss = getLoss(o, y);
-    mse_end = clock();
-
-    if (isnan(loss))
-        printf("l wha\n");
-
-    //output error term = o * (1-o) * 2 * (o - y)
-    clock_t getError_start, getError_end;
-    getError_start = clock();
-    int s = o.size();
-    for (int i = 0;i < s;i++) {
-        //vector<double> yo = error_terms.back();
-        error_terms.back()[i] = o[i] * (1 - o[i]) * 2 * (o[i] - y[i]);
-    }
-    getError_end = clock();
-    if (isnan(error_terms.back()[0]))
-        printf("w wha\n");
-
-    //k = j+1
-    //i = layer
-    //hidden layer terms(ji) = o(j) *(1 - o(j)) * sum(w(j->k)*err(k))
-    clock_t propError_start, propError_end;
-    propError_start = clock();
-    for (int i = error_terms.size() - 2;i >= 0;i--) {
-        for (int j = 0;j < error_terms[i].size();j++) {
-            double err_sum = 0;
-            for (int k = 0;k < cells_in_layer[i + 1];k++) {
-                err_sum += h_weights[i][k][j] * error_terms[i + 1][k];
-                if (isnan(err_sum))
-                    printf("w wha\n");
-            }
-            error_terms[i][j] = outputs[i][j] * (1 - outputs[i][j]) * err_sum;
-        }
-    }
-    propError_end = clock();
-
-    //update weights
-    //weight += learning rate * error term *
-    clock_t weights_start, weights_end;
-    weights_start = clock();
-    for (int i = 1;i < cells_in_layer.size();i++) {
-        for (int j = 0;j < cells_in_layer[i];j++) {
-            for (int k = 0;k < cells_in_layer[i - 1] + 1;k++) {
-                double delta;
-                if (k == cells_in_layer[i - 1])
-                    delta = eta * error_terms[i][j] * bias;
-                else
-                    delta = eta * error_terms[i][j] * outputs[i - 1][k];
-                h_weights[i - 1][j][k] += delta;
-                if (isnan(delta))
-                    printf("w wha\n");
-            }
-        }
-    }
-    weights_end = clock();
-    //printExecution("Run NN", run_start, run_end);
-    //printExecution("Get MSE", mse_start, mse_end);
-    //printExecution("Get Error", getError_start, getError_end);
-    //printExecution("Propogate Error", propError_start, propError_end);
-    //printExecution("Update Weights", weights_start, weights_end);
-
-    return loss;
-}
-
-double MultiLayerParatron::bp(double* x, vector<double> y) {
-    //get outputs
-    clock_t run_start, run_end;
-    run_start = clock();
-    vector<double> o = getRun(x);
-    double su = getSum(o);
-    if (isnan(o[0]) || (L_F == CROSS_ENTROPY && (su < .9988888 || su > 1.0011111)))
-        printf("o wha\n");
-    run_end = clock();
-
-    //get loss
-    clock_t mse_start, mse_end;
-    mse_start = clock();
-    double loss = getLoss(o, y);
-    mse_end = clock();
-
-    if (isnan(loss))
-        printf("l wha\n");
-
-    //ACTUALLY, it may be different
-    //output error term = o * (1-o) * 2 * (o - y)
-    clock_t getError_start, getError_end;
-    getError_start = clock();
-    int s = o.size();
-    for (int i = 0;i < s;i++) {
-        //vector<double> yo = error_terms.back();
-        error_terms.back()[i] = o[i] * (1 - o[i]) * 2 * (o[i] - y[i]);
-    }
-    getError_end = clock();
-    if (isnan(error_terms.back()[0]))
-        printf("w wha\n");
-
-    //k = j+1
-    //i = layer
-    //hidden layer terms(ji) = o(j) *(1 - o(j)) * sum(w(j->k)*err(k))
-    clock_t propError_start, propError_end;
-    propError_start = clock();
-    for (int i = error_terms.size() - 2;i >= 0;i--) {
-        for (int j = 0;j < error_terms[i].size();j++) {
-            double err_sum = 0;
-            for (int k = 0;k < cells_in_layer[i + 1];k++) {
-                err_sum += h_weights[i][k][j] * error_terms[i + 1][k];
-                if (isnan(err_sum))
-                    printf("w wha\n");
-            }
-            error_terms[i][j] = outputs[i][j] * (1 - outputs[i][j]) * err_sum;
-        }
-    }
-    propError_end = clock();
-
-    //update weights
-    //weight += learning rate * error term *
-    clock_t weights_start, weights_end;
-    weights_start = clock();
-    for (int i = 1;i < cells_in_layer.size();i++) {
-        for (int j = 0;j < cells_in_layer[i];j++) {
-            for (int k = 0;k < cells_in_layer[i - 1] + 1;k++) {
-                double delta;
-                if (k == cells_in_layer[i - 1])
-                    delta = eta * error_terms[i][j] * bias;
-                else
-                    delta = eta * error_terms[i][j] * outputs[i - 1][k];
-                h_weights[i - 1][j][k] += delta;
-                if (isnan(delta))
-                    printf("w wha\n");
-            }
-        }
-    }
-    weights_end = clock();
-    //printExecution("Run NN", run_start, run_end);
-    //printExecution("Get MSE", mse_start, mse_end);
-    //printExecution("Get Error", getError_start, getError_end);
-    //printExecution("Propogate Error", propError_start, propError_end);
-    //printExecution("Update Weights", weights_start, weights_end);
-    cudaMemcpy3dOffVector(&d_weights, h_weights);
-    return loss;
-}
-
-double MultiLayerParatron::bp(double* x, double* y) {
-
-    runMLP << <1, 1 >> > (x, d_outputs, d_weights, d_A_Fs, d_CIL, cells_in_layer.size(), bias, d_weightLayerOffsets, d_outputLayerOffsets);
-    cudaDeviceSynchronize();
-
-    backpropagation << <1, 1 >> > (d_loss, x, y, d_error_terms, d_outputs, d_weights, d_A_Fs, d_CIL, cells_in_layer.size(), bias, eta, d_weightLayerOffsets, d_outputLayerOffsets);
-    cudaDeviceSynchronize();
-
-    double* loss = new double;
-    //error_terms = cudaCopy2dBackToVector(&d_error_terms, {512, 512, 10});
-    cudaMemcpy(loss, d_loss, sizeof(double), cudaMemcpyDeviceToHost);
-
-    //h_weights = cudaCopy3dBackToVector(&d_weights, weight_lengths);
-
-    return *loss;
-
-}
-
-double MultiLayerParatron::cleanbp(double* x, vector<double> y) {
-    //get outputs
-    clock_t run_start, run_end;
-    run_start = clock();
-    vector<double> o = getCleanRun(x);
-    double su = getSum(o);
-    if (isnan(o[0]) || (L_F == CROSS_ENTROPY && (su < .9988888 || su > 1.0011111)))
-        printf("o wha\n");
-    run_end = clock();
-
-    //get loss
-    clock_t mse_start, mse_end;
-    mse_start = clock();
-    double loss = getLoss(o, y);
-    mse_end = clock();
-
-    if (isnan(loss))
-        printf("l wha\n");
-
-    //ACTUALLY, it may be different
-    //output error term = o * (1-o) * 2 * (o - y)
-    clock_t getError_start, getError_end;
-    getError_start = clock();
-    int s = o.size();
-    for (int i = 0;i < s;i++) {
-        //vector<double> yo = error_terms.back();
-        error_terms.back()[i] = o[i] * (1 - o[i]) * 2 * (o[i] - y[i]);
-    }
-    getError_end = clock();
-    if (isnan(error_terms.back()[0]))
-        printf("w wha\n");
-
-    //k = j+1
-    //i = layer
-    //hidden layer terms(ji) = o(j) *(1 - o(j)) * sum(w(j->k)*err(k))
-    clock_t propError_start, propError_end;
-    propError_start = clock();
-    for (int i = error_terms.size() - 2;i >= 0;i--) {
-        for (int j = 0;j < error_terms[i].size();j++) {
-            double err_sum = 0;
-            for (int k = 0;k < cells_in_layer[i + 1];k++) {
-                err_sum += h_weights[i][k][j] * error_terms[i + 1][k];
-                if (isnan(err_sum))
-                    printf("w wha\n");
-            }
-            error_terms[i][j] = outputs[i][j] * (1 - outputs[i][j]) * err_sum;
-        }
-    }
-    propError_end = clock();
-
-    //update weights
-    //weight += learning rate * error term *
-    clock_t weights_start, weights_end;
-    weights_start = clock();
-    for (int i = 1;i < cells_in_layer.size();i++) {
-        for (int j = 0;j < cells_in_layer[i];j++) {
-            for (int k = 0;k < cells_in_layer[i - 1] + 1;k++) {
-                double delta;
-                if (k == cells_in_layer[i - 1])
-                    delta = eta * error_terms[i][j] * bias;
-                else
-                    delta = eta * error_terms[i][j] * outputs[i - 1][k];
-                h_weights[i - 1][j][k] += delta;
-                if (isnan(delta))
-                    printf("w wha\n");
-            }
-        }
-    }
-    weights_end = clock();
-    //printExecution("Run NN", run_start, run_end);
-    //printExecution("Get MSE", mse_start, mse_end);
-    //printExecution("Get Error", getError_start, getError_end);
-    //printExecution("Propogate Error", propError_start, propError_end);
-    //printExecution("Update Weights", weights_start, weights_end);
-    cudaMemcpy3dOffVectorHostRef(&d_weights_href, h_weights);
-    return loss;
-}
-
-double MultiLayerParatron::cleanbp(double* x, double* y) {
-    int LL = cells_in_layer.size() - 1;
-    clock_t run_start, run_end;
-    run_start = clock();
-    cleanRun(x);
-    run_end = clock();
-
-    //get loss
-    clock_t mse_start, mse_end;
-    mse_start = clock();
-    //make gpu-side loss variable
-    getLoss(d_outputs + outputLayerOffsets[cells_in_layer.size()-1], y);
-    mse_end = clock();
-
-    //output error term = o * (1-o) * (y - o)
-    clock_t getError_start, getError_end;
-    getError_start = clock();
-    int s = cells_in_layer[cells_in_layer.size() - 1];
-
-    getErrorLayerWRTInputSeq << <1, 1 >> > (d_error_terms + outputLayerOffsets[cells_in_layer.size() - 1] - outputLayerOffsets[1], d_outputs + outputLayerOffsets[cells_in_layer.size() - 1], y, s, L_F, SOFTMAX);
-    cudaDeviceSynchronize();
-
-    for (int i = cells_in_layer.size() - 3;i >= 0;i--) {
-        cleanGradient << <(cells_in_layer[i + 1] / 32) + 1, 32 >> > (d_weights + weightLayerOffsets[i], d_error_terms + outputLayerOffsets[i + 2] - cells_in_layer[0], d_error_terms + outputLayerOffsets[i + 1] - outputLayerOffsets[1], d_outputs + outputLayerOffsets[i + 1], cells_in_layer[i + 2], cells_in_layer[i + 1]);
-        cudaDeviceSynchronize();
-    }
-
-    for (int i = 0;i < cells_in_layer.size()-1;i++) {
-        cleanUpdateWeightsbyLayer << <cells_in_layer[i] + 1, cells_in_layer[i+1] >> > (d_weights + weightLayerOffsets[i], d_error_terms + outputLayerOffsets[i+1] - outputLayerOffsets[1], d_outputs + outputLayerOffsets[i], eta, cells_in_layer[i], cells_in_layer[i+1], bias);
-        cudaDeviceSynchronize();
-    }
-
-    double* loss = new double;
-    cudaMemcpy(loss, d_loss, sizeof(double), cudaMemcpyDeviceToHost);
-    return *loss;
 }
 
 double MultiLayerParatron::cleanerbp(double* x, double* y) {
@@ -718,7 +292,7 @@ double MultiLayerParatron::aveBatchP(double* batchX, double* batchY) {
     }
 
     for (int i = 0;i < cells_in_layer.size() - 1;i++) {
-        batchMakeGradient << < dim3(batchSize, cells_in_layer[i] + 1), cells_in_layer[i + 1] >> > (d_batch_grad_href[i], d_batch_errors_href[i], d_batch_outs_href[i], eta, cells_in_layer[i], cells_in_layer[i + 1], bias, batchSize);
+        batchMakeGradient << < dim3(batchSize, cells_in_layer[i] + 1), cells_in_layer[i + 1] >> > (d_batch_grad_href[i], d_gradient_href[i], d_batch_errors_href[i], d_batch_outs_href[i], eta, momentum, cells_in_layer[i], cells_in_layer[i + 1], bias, batchSize);
         gpuErrorchk(cudaDeviceSynchronize());
     }
 

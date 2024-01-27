@@ -21,8 +21,8 @@ int main() {
     getMNIST(&train_imgs, &train_lbls, &test_imgs, &test_lbls);
 	
     int s = train_imgs[0].size();
-	int batchSize = 4;
-	cout << "\n\n----------IMAGE CLASSIFIER----------\n\n";
+	int batchSize = 10;
+	cout << "\n\n---------IMAGE CLASSIFIER----------\n\n";
 
 	printf("Size: %d\n", train_imgs[0].size());
 	//MultiLayerPerceptron* mlp = new MultiLayerPerceptron({s}, CROSS_ENTROPY, 1, .001);
@@ -30,16 +30,16 @@ int main() {
 	//mlp->addLayer(512, SIGMOID);
 	//mlp->addLayer(10, SOFTMAX);
 	MultiLayerPerceptron* mlp = new MultiLayerPerceptron({ s }, CROSS_ENTROPY, 1, .01, batchSize);
-	mlp->addLayer(512, SIGMOID);
-	mlp->addLayer(512, SIGMOID);
+	mlp->addLayer(500, SIGMOID);
+	mlp->addLayer(300, SIGMOID);
 	mlp->addLayer(10, SOFTMAX);
-	MultiLayerParatron* mlpara = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .01, batchSize);
-	mlpara->addLayer(512, SIGMOID);
-	mlpara->addLayer(512, SIGMOID);
+	MultiLayerParatron* mlpara = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .16, 0.0, batchSize);
+	mlpara->addLayer(500, SIGMOID);
+	mlpara->addLayer(300, SIGMOID);
 	mlpara->addLayer(10, SOFTMAX);
-	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .02, batchSize);
-	mlpar->addLayer(512, SIGMOID);
-	mlpar->addLayer(512, SIGMOID);
+	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .2, 0, batchSize);
+	mlpar->addLayer(500, SIGMOID);
+	mlpar->addLayer(300, SIGMOID);
 	mlpar->addLayer(10, SOFTMAX);
 	for (int i = 0;i < mlp->h_weights.size();i++) {
 		for (int j = 0;j < mlp->h_weights[i].size();j++) {
@@ -105,12 +105,14 @@ int main() {
 	//batch gradient descent
 	gpu_start = clock();	
 	for (int j = 0;j < 5;j++) {
+		//if (j == 3) mlpar->eta = .01;
 		for (int i = 0;i < x_batches.size();i++) {
 			loss += mlpar->aveBatchP(d_x_batches[i], d_y_batches[i]);
+			//l += mlpara->aveBatchP(d_x_batches[i], d_y_batches[i]);
 
 			if (i % (progressCheck / batchSize) == 0) {
 				gpu_end = clock();
-				cout << "Ground Example " << i << " error: " << l / (batchSize * (progressCheck /batchSize)) << endl;
+				cout << "Ground Example " << i * batchSize << " error: " << l / ((progressCheck /batchSize)) << endl;
 				cout << "Epoch: " << j << ", Example " << i * batchSize << " error: " << loss / (progressCheck / batchSize) << endl;
 				cout << endl;
 				l = 0.0;
@@ -123,11 +125,8 @@ int main() {
 		shuffleData(train_imgs, train_encoders);
 		x_batches = batchify(&train_imgs, batchSize);
 		y_batches = batchify(&train_encoders, batchSize);
-		//THIS IS CAUSING MEMORY LEAKS
-		cudaFree(&d_x_batches);
-		cudaFree(&d_y_batches);
-		cudaAllocate2dOffVectorHostRef(&d_x_batches, x_batches);
-		cudaAllocate2dOffVectorHostRef(&d_y_batches, y_batches);
+		cudaMemCopy2dOffVectorHostRef(&d_x_batches, x_batches);
+		cudaMemCopy2dOffVectorHostRef(&d_y_batches, y_batches);
 		gpu_end = clock();
 		printExecution("Shuffle Time", gpu_start, gpu_end);
 		gpu_start = clock();
@@ -138,7 +137,7 @@ int main() {
 	//gpu_start = clock();
 	//for (int j = 0;j < 4;j++) {
 	//	for (int i = 0;i < train_imgs.size();i++) {
-	//		loss += mlpara->cleanerbp(d_train_imgs[i], d_train_encoders[i]);
+	//		loss += mlpar->cleanerbp(d_train_imgs[i], d_train_encoders[i]);
 	//		if (i % progressCheck == 0) {
 	//			gpu_end = clock();
 	//			cout << "Epoch: " << j << ", Example " << i << " error: " << loss / (progressCheck) << endl;
@@ -157,7 +156,7 @@ int main() {
 	double correct = 0.0;
     for (int i = 0;i < test_lbls.size();i++) {
 		//vector<double> out = mlpara->getCleanRun(d_test_imgs[i]);
-		vector<double> out = mlpar->getCleanRun(d_test_imgs[i]);
+		vector<double> out = mlpar->getRun(d_test_imgs[i]);
 		//mlpar->batchRun(d_x_batches[i]);
 		//vector<double> out = mlp->Wrun(test_imgs[i]);
 		int ans = 0;
@@ -174,6 +173,27 @@ int main() {
     }
 	double accuracy = correct / (double)test_lbls.size();
 	printf("\n\nAccuracy ====== %f\n.... %f correct out of %d tests\n", accuracy, correct, test_lbls.size());
+
+	//correct = 0.0;
+	//for (int i = 0;i < test_lbls.size();i++) {
+	//	//vector<double> out = mlpara->getCleanRun(d_test_imgs[i]);
+	//	vector<double> out = mlpara->getCleanRun(d_test_imgs[i]);
+	//	//mlpar->batchRun(d_x_batches[i]);
+	//	//vector<double> out = mlp->Wrun(test_imgs[i]);
+	//	int ans = 0;
+	//	double top = 0.0;
+	//	for (int i = 0;i < 10;i++)
+	//		if (out[i] > top) {
+	//			top = out[i];
+	//			ans = i;
+	//		}
+	//	//cout << "image " << i << ": [";
+	//	//for (int i = 0;i < 10;i++) cout << out[i] << ", ";
+	//	//cout << "] " << ans << " : " << test_lbls[i][0] << endl;
+	//	if (ans == test_lbls[i][0]) correct++;
+	//}
+	//accuracy = correct / (double)test_lbls.size();
+	//printf("\n\nw/o mom Accuracy ====== %f\n.... %f correct out of %d tests\n", accuracy, correct, test_lbls.size());
 
 
 

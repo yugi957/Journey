@@ -18,7 +18,6 @@ void cudaFree2dHostRef(double*** d_a, int size) {
 }
 
 void cudaMemCopy2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, bool vocal) {
-	*d_a = new double* [h_a.size()];
 	for (int i = 0;i < h_a.size();i++) {
 		if (vocal) printf("size %d: %d\n", i, h_a[i].size());
 		//cudaMalloc((void**)&(*d_a)[i], sizeof(double) * h_a[i].size());

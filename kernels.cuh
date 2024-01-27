@@ -1123,9 +1123,10 @@ __global__ void cleanUpdateWeightsbyLayer(double* weights, double* error_terms, 
 	weights[wid] -= delta;
 }
 
-__global__ void batchMakeGradient(double* grad, double* error_terms, double* outputs, double eta, int CIL, int forCIL, double bias, int batchSize) {
+__global__ void batchMakeGradient(double* grad, double* updates, double* error_terms, double* outputs, double eta, double momentum, int CIL, int forCIL, double bias, int batchSize) {
 	int blockId = blockIdx.x * (CIL + 1) * forCIL;
 	int gid = blockId + (CIL + 1) * threadIdx.x + blockIdx.y;
+	int wid = (CIL + 1) * threadIdx.x + blockIdx.y;
 	if (gid > (CIL + 1) * forCIL * batchSize) return;
 
 	int err_offset = forCIL * blockIdx.x;
@@ -1139,7 +1140,8 @@ __global__ void batchMakeGradient(double* grad, double* error_terms, double* out
 	//if (threadIdx.x == 0 && blockIdx.x == 0) printf("weight: %f ; batch: %d ; err_offset: %d ; out_offset: %d\n", weights[wid], batch, err_offset, out_offset);
 	double delta = eta * local_errors[threadIdx.x] * local_outs[blockIdx.y];
 	if (blockIdx.y == CIL) delta = eta * local_errors[threadIdx.x] * bias;
-	grad[gid] = delta;
+	grad[gid] = (momentum * updates[wid]) + delta;
+	//if (threadIdx.x == 0 && blockIdx.x == 0 && blockIdx.y == 0) printf("momentum: %f, prev grad: %f\n", momentum, updates[wid]);
 }
 
 __global__ void batchUpdateWeightsbyLayer(double* weights, double* error_terms, double* outputs, double eta, int CIL, int forCIL, double bias, int batch) {
