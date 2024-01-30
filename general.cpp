@@ -1,15 +1,15 @@
 #include "general.h"
 
-void xavier_init(std::vector<std::vector<double>>& weights, int input_size, int output_size) {
+void xavier_init(vector<vector<double>>& weights, int input_size, int output_size) {
 	// Define a random number generator
-	std::default_random_engine generator;
-	std::normal_distribution<double> distribution(0.0, 1.0);
+	default_random_engine generator;
+	normal_distribution<double> distribution(0.0, 1.0);
 
 	// Resize the weights matrix to the appropriate size
-	weights.resize(output_size, std::vector<double>(input_size));
+	weights.resize(output_size, vector<double>(input_size));
 
 	// Compute the scaling factor
-	double scaling_factor = std::sqrt(6.0 / (input_size + output_size));
+	double scaling_factor = sqrt(6.0 / (input_size + output_size));
 
 	// Fill the weights matrix with random values
 	for (int i = 0; i < output_size; i++) {
@@ -180,23 +180,23 @@ bool compare2D(vector<vector<double>> a, vector<vector<double>> b) {
 	return true;
 }
 
-void shuffleData(std::vector<std::vector<double>>& images, std::vector<std::vector<double>>& labels) {
+void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels) {
 	// Seed with a real random value, if available
-	std::random_device rd;
+	random_device rd;
 
 	// Create a random number generator
-	std::mt19937 g(rd());
+	mt19937 g(rd());
 
 	// Create a vector of indices
-	std::vector<size_t> indices(images.size());
-	std::iota(indices.begin(), indices.end(), 0);
+	vector<size_t> indices(images.size());
+	iota(indices.begin(), indices.end(), 0);
 
 	// Shuffle the indices
-	std::shuffle(indices.begin(), indices.end(), g);
+	shuffle(indices.begin(), indices.end(), g);
 
 	// Create temporary vectors to hold the shuffled data
-	std::vector<std::vector<double>> shuffledImages(images.size());
-	std::vector<std::vector<double>> shuffledLabels(labels.size());
+	vector<vector<double>> shuffledImages(images.size());
+	vector<vector<double>> shuffledLabels(labels.size());
 
 	// Rearrange the data according to the shuffled indices
 	for (size_t i = 0; i < indices.size(); ++i) {
@@ -209,26 +209,26 @@ void shuffleData(std::vector<std::vector<double>>& images, std::vector<std::vect
 	labels.swap(shuffledLabels);
 }
 
-vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize) {
-	vector<vector<vector<double>>> batches;
-	int examples = data->size();
-	if (examples % batchSize != 0) {
-		printf("BATCHES NOT EVEN");
-		// Throw an exception or return an empty vector
-		throw std::invalid_argument("The number of examples is not evenly divisible by the batch size.");
-	}
-	int num_batches = examples / batchSize;
-	int k = 0;
-
-	for (int i = 0;i < num_batches;i++) {
-		batches.push_back(vector<vector<double>>());
-		for (int j = 0;j < batchSize;j++) {
-			batches[i].push_back((*data)[k]);
-			k++;
-		}
-	}
-	return batches;
-}
+//vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize) {
+//	vector<vector<vector<double>>> batches;
+//	int examples = data->size();
+//	if (examples % batchSize != 0) {
+//		printf("BATCHES NOT EVEN");
+//		// Throw an exception or return an empty vector
+//		throw invalid_argument("The number of examples is not evenly divisible by the batch size.");
+//	}
+//	int num_batches = examples / batchSize;
+//	int k = 0;
+//
+//	for (int i = 0;i < num_batches;i++) {
+//		batches.push_back(vector<vector<double>>());
+//		for (int j = 0;j < batchSize;j++) {
+//			batches[i].push_back((*data)[k]);
+//			k++;
+//		}
+//	}
+//	return batches;
+//}
 
 vector<vector<double>> autoencode(vector<vector<double>> set, int size) {
 	vector<double> temp(size, 0);
@@ -239,4 +239,44 @@ vector<vector<double>> autoencode(vector<vector<double>> set, int size) {
 		temp[set[i][0]] = 0;
 	}
 	return res;
+}
+
+
+void write4D(vector<vector<vector<vector<double>>>> vec4d) {
+	ofstream file("weights.txt");
+
+	for (const auto& dim1 : vec4d) {
+		for (const auto& dim2 : dim1) {
+			bool first3 = true;
+			for (const auto& dim3 : dim2) {
+				if (!first3) file << ";";
+				first3 = false;
+				bool first4 = true;
+				for (const auto& val : dim3) {
+					if (!first4) file << ", ";
+					first4 = false;
+					file << val;
+				}
+			}
+			file << "\n"; // Separate the second dimension
+		}
+		file << "\n"; // Separate the top level vectors
+	}
+	file.close();
+}
+
+void write2D(vector<vector<double>> vec2d) {
+	ofstream file("outputs.txt");
+
+	for (const auto& row : vec2d) {
+		bool first = true;
+		for (const auto& val : row) {
+			if (!first) file << ", ";
+			file << val;
+			first = false;
+		}
+		file << "\n";
+	}
+
+	file.close();
 }

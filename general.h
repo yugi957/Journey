@@ -1,5 +1,5 @@
-//#include "cuda_runtime.h"
-//#include "device_launch_parameters.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>;
@@ -10,10 +10,11 @@
 #include <iterator>
 #include <random>
 #include <numeric>
+#include <fstream>
 
 using namespace std;
 
-void xavier_init(std::vector<std::vector<double>>& weights, int input_size, int output_size);
+void xavier_init(vector<vector<double>>& weights, int input_size, int output_size);
 
 double frand();
 
@@ -46,7 +47,10 @@ void average3D(vector<vector<vector<double>>>* a, vector<vector<double>>* b);
 void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> b);
 bool compare2D(vector<vector<double>> a, vector<vector<double>> b);
 
-void shuffleData(std::vector<vector<double>>& images, vector<vector<double>>& labels);
-vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize);
+void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels);
+//vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize);
 
 vector<vector<double>> autoencode(vector<vector<double>> set, int size);
+
+void write4D(vector<vector<vector<vector<double>>>> vec4d);
+void write2D(vector<vector<double>>);

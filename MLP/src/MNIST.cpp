@@ -44,7 +44,7 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
         printf("num of pixels: %d\n", n_cols * n_rows);
         //for (int i = 0;i < number_of_images;++i){
         unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * n_cols * n_rows);
-        for (int i = 0;i < 1000;i++) {
+        for (int i = 0;i < number_of_images;i++) {
             train_imgs->push_back(vector<double>());
             train_lbls->push_back(vector<double>());
             for (int r = 0;r < n_rows;r++) {
@@ -98,7 +98,7 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
         printf("num of pixels: %d\n", n_cols * n_rows);
         //for (int i = 0;i < number_of_images;++i){
         unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * n_cols * n_rows);
-        for (int i = 0;i < 1000;i++) {
+        for (int i = 0;i < number_of_images;i++) {
             test_imgs->push_back(vector<double>());
             test_lbls->push_back(vector<double>());
             for (int r = 0;r < n_rows;r++) {

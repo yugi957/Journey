@@ -14,33 +14,47 @@ using namespace std;
 
 int main() {
 
+	vector<vector<vector<vector<double>>>> weight_data;
+	vector<vector<double>> out_data;
 	//train XOR 
-	//cout << "\n\n-----------------TRAINED XOR EXAMPLE-----------------\n\n";
-	//MultiLayerPerceptron MLP = MultiLayerPerceptron({2}, MSE);
-	//MLP.addLayer(2, RELU);
-	//MLP.addLayer(1, RELU);
-	//cout << "Training Neural Network as XOR gate\n";
-	//double MSE;
-	//int epochs = 3000;
-	//for (int i = 0;i < epochs;i++) {
-	//	MSE = 0.0;
-	//	MSE += MLP.bp({0,0},{0});
-	//	MSE += MLP.bp({0,1},{1});
-	//	MSE += MLP.bp({1,0},{1});
-	//	MSE += MLP.bp({1,1},{0});
-	//	MSE /= 4.0;
-	//	if (i % 100 == 0) printf("Epoch %d: MSE = %f\n", i, MSE);
-	//}
+	cout << "\n\n-----------------TRAINED XOR EXAMPLE-----------------\n\n";
+	MultiLayerPerceptron MLP = MultiLayerPerceptron({2}, MSE, 1, .1, 1, .9);
+	MLP.addLayer(2, SIGMOID);
+	MLP.addLayer(1, SIGMOID);
+	MLP.finalize();
+	cout << "Training Neural Network as XOR gate\n";
+	double MSE;
+	int epochs = 3000;
+	for (int i = 0;i < epochs;i++) {
+		out_data.push_back(vector<double>());
+		MSE = 0.0;
+		MSE += MLP.Mbp({0,0},{0});
+		weight_data.push_back(MLP.h_weights);
+		out_data.back().push_back(MLP.outputs[2][0]);
+		MSE += MLP.Mbp({0,1},{1});
+		out_data.back().push_back(MLP.outputs[2][0]);
+		weight_data.push_back(MLP.h_weights);
+		MSE += MLP.Mbp({1,0},{1});
+		out_data.back().push_back(MLP.outputs[2][0]);
+		weight_data.push_back(MLP.h_weights);
+		MSE += MLP.Mbp({1,1},{0});
+		out_data.back().push_back(MLP.outputs[2][0]);
+		weight_data.push_back(MLP.h_weights);
+		MSE /= 4.0;
+		if (i % 100 == 0) printf("Epoch %d: MSE = %f\n", i, MSE);
+	}
 
 	////test XOR
-	//printf("\n\nTESTING XOR GATE:::\n\n");
+	printf("\n\nTESTING XOR GATE:::\n\n");
 	//MLP.print_weights();
 
-	//cout << "0 0: " << MLP.run({0,0})[0] << endl;
-	//cout << "0 1: " << MLP.run({0,1})[0] << endl;
-	//cout << "1 0: " << MLP.run({1,0})[0] << endl;
-	//cout << "1 1: " << MLP.run({1,1})[0] << endl;
+	cout << "0 0: " << MLP.Wrun({0,0})[0] << endl;
+	cout << "0 1: " << MLP.Wrun({0,1})[0] << endl;
+	cout << "1 0: " << MLP.Wrun({1,0})[0] << endl;
+	cout << "1 1: " << MLP.Wrun({1,1})[0] << endl;
 
+	write4D(weight_data);
+	write2D(out_data);
 
 	//vector<Mat> images;
 	//for (int i = 1;i < 10;i++) {
@@ -76,38 +90,36 @@ int main() {
 	testlp->addLayer(512, SIGMOID);
 	testlp->addLayer(512, SIGMOID);
 	testlp->addLayer(10, SOFTMAX);
-	cout << "Training Neural Network as Image Classifier...\n";
+	//cout << "Training Neural Network as Image Classifier...\n";
 	//testlp->h_weights = mlp->h_weights;
-	compare3D(testlp->h_weights, mlp->h_weights);
+	//compare3D(testlp->h_weights, mlp->h_weights);
 
-	printf("Training on %d images and %d labels...\n", train_imgs.size(), train_lbls.size());
-	printf("Batch Size: %d, num_batches: %d\n", batchSize, batches.size());
+	//printf("Training on %d images and %d labels...\n", train_imgs.size(), train_lbls.size());
+	//printf("Batch Size: %d, num_batches: %d\n", batchSize, batches.size());
 
-	int progressCheck = 50;
-	double loss = 0.0;
-	double l = 0.0;
+	//int progressCheck = 50;
 
-	vector<vector<double>> labels = autoencode(train_lbls, 10);
+	//vector<vector<double>> labels = autoencode(train_lbls, 10);
 
-	mlp->train(train_imgs, labels, 4, 50);
+	//mlp->train(train_imgs, labels, 4, 50);
 
-	double correct = 0.0;
-	for (int i = 0;i < test_lbls.size();i++) {
-		vector<double> out = mlp->Wrun(test_imgs[i]);
-		int ans = 0;
-		double top = 0.0;
-		for (int i = 0;i < 10;i++)
-			if (out[i] > top) {
-				top = out[i];
-				ans = i;
-			}
-		cout << "image " << i << ": [";
-		for (int i = 0;i < 10;i++) cout << out[i] << ", ";
-		cout << "] " << ans << " : " << test_lbls[i][0] << endl;
-		if (ans == test_lbls[i][0]) correct++;
-	}
-	double accuracy = correct / (double)test_lbls.size();
-	printf("\n\nAccuracy ====== %f\n.... %f correct out of %d tests\n", accuracy, correct, test_lbls.size());
+	//double correct = 0.0;
+	//for (int i = 0;i < test_lbls.size();i++) {
+	//	vector<double> out = mlp->Wrun(test_imgs[i]);
+	//	int ans = 0;
+	//	double top = 0.0;
+	//	for (int i = 0;i < 10;i++)
+	//		if (out[i] > top) {
+	//			top = out[i];
+	//			ans = i;
+	//		}
+	//	cout << "image " << i << ": [";
+	//	for (int i = 0;i < 10;i++) cout << out[i] << ", ";
+	//	cout << "] " << ans << " : " << test_lbls[i][0] << endl;
+	//	if (ans == test_lbls[i][0]) correct++;
+	//}
+	//double accuracy = correct / (double)test_lbls.size();
+	//printf("\n\nAccuracy ====== %f\n.... %f correct out of %d tests\n", accuracy, correct, test_lbls.size());
 
 
 
