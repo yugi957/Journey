@@ -12,33 +12,33 @@ using namespace std;
 
 inline void gpuAssert(cudaError code, const char* file, int line);
 
-void cudaAllocate2dOffVectorHostRef(double*** d_inputs, vector<vector<double>> h_inputs);
-void cudaFree2dHostRef(double*** d_a, int size);
-void cudaMemCopy2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a);
+void cudaAllocate2dOffVectorHostRef(float*** d_inputs, vector<vector<float>> h_inputs);
+void cudaFree2dHostRef(float*** d_a, int size);
+void cudaMemCopy2dOffVectorHostRef(float*** d_a, vector<vector<float>> h_a);
 
-void cudaAllocateFull2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, int batchSize);
+void cudaAllocateFull2dOffVectorHostRef(float*** d_a, vector<vector<float>> h_a, int batchSize);
 
-void cudaAllocate3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> h_a);
+void cudaAllocate3dOffVectorHostRef(float*** d_a, vector<vector<vector<float>>> h_a);
 
-void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs, int** lengths);
-void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs);
+void cudaAllocate2dOffVector(float** d_a, vector<vector<float>> h_inputs, int** lengths);
+void cudaAllocate2dOffVector(float** d_a, vector<vector<float>> h_inputs);
 
-void cudaAllocate3dOffVector(double** d_inputs, vector<vector<vector<double>>> h_inputs);
+void cudaAllocate3dOffVector(float** d_inputs, vector<vector<vector<float>>> h_inputs);
 
-void cudaMemcpy2dOffVector(double** d_a, vector<vector<double>> h_inputs);
+void cudaMemcpy2dOffVector(float** d_a, vector<vector<float>> h_inputs);
 
-void cudaMemcpy3dOffVector(double** d_a, vector<vector<vector<double>>> h_inputs);
+void cudaMemcpy3dOffVector(float** d_a, vector<vector<vector<float>>> h_inputs);
 
-void cudaMemcpy3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> h_a);
+void cudaMemcpy3dOffVectorHostRef(float*** d_a, vector<vector<vector<float>>> h_a);
 
-vector<vector<double>> cudaCopy2dBackToVector(double** d_a, vector<int> lengths);
+vector<vector<float>> cudaCopy2dBackToVector(float** d_a, vector<int> lengths);
 
-vector<vector<vector<double>>> cudaCopy3dBackToVector(double** d_a, vector<vector<int>> lengths);
-vector<vector<double>> cudaCopy2dBackToVectorHref(double** d_a, vector<int> lengths);
-vector<vector<vector<double>>> cudaCopy3dBackToVectorHref(double*** d_a, vector<vector<int>> lengths);
-vector<vector<double>> cudaCopyBatchBackToVectorHref(double** d_a, int size, int batchSize);
+vector<vector<vector<float>>> cudaCopy3dBackToVector(float** d_a, vector<vector<int>> lengths);
+vector<vector<float>> cudaCopy2dBackToVectorHref(float** d_a, vector<int> lengths);
+vector<vector<vector<float>>> cudaCopy3dBackToVectorHref(float*** d_a, vector<vector<int>> lengths);
+vector<vector<float>> cudaCopyBatchBackToVectorHref(float** d_a, int size, int batchSize);
 
-vector<double> cudaCopy2dBackTo1dVector(double** d_a, vector<int> lengths);
+vector<float> cudaCopy2dBackTo1dVector(float** d_a, vector<int> lengths);
 
-double*** createBatches(double** hr_a, int batchSize, int examples, int size);
-vector<vector<double>> batchify(vector<vector<double>>* data, int batchSize);
+float*** createBatches(float** hr_a, int batchSize, int examples, int size);
+vector<vector<float>> batchify(vector<vector<float>>* data, int batchSize);

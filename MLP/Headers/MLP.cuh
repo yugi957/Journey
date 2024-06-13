@@ -7,60 +7,62 @@ using namespace std;
 
 class MultiLayerParatron : public MultiLayerPerceptron {
 public:
-	MultiLayerParatron(vector<int> cells_in_layer, loss_function func, double bias = 1.0, double eta = 0.5, double momentum = .4, int batchSize = 0);
+	MultiLayerParatron(vector<int> cells_in_layer, loss_function func, float bias = 1.0, float eta = 0.5, float momentum = .4, int batchSize = 0);
 	void addLayer(int CIL, activation_function func);
 	void finalize();
 
-	void cleanerRun(double* d_x);
-	vector<double> getRun(double* d_x);
-	void batchRun(double* d_batchX);
-	vector<vector<double>> getBatchRun(double* d_batchX);
+	void cleanerRun(float* d_x);
+	vector<float> getRun(float* d_x);
+	void batchRun(float* d_batchX);
+	vector<vector<float>> getBatchRun(float* d_batchX);
 
-	void getLoss(double* x, double* y);
-	void bLoss(double* x, double* y);
+	void getLoss(float* x, float* y);
+	void bLoss(float* x, float* y);
 
-	double cleanerbp(double* x, double* y);
-	vector<vector<double>> getCleanerBp(double* x, double* y);
+	float cleanerbp(float* x, float* y);
+	vector<vector<float>> getCleanerBp(float* x, float* y);
 
-	double batchP(double* batchX, double* batchY);
-	vector<vector<double>> getBatchP(double* batchX, double* batchY);
-	double aveBatchP(double* batchX, double* batchY);
-	vector<vector<double>> getAveP(double* batchX, double* batchY);
+	float aveBatchP(float* batchX, float* batchY);
+	vector<vector<float>> getAveP(float* batchX, float* batchY);
 
 	int* d_CIL;
-	double* d_outputs;
-	double** d_outputs_href;
-	double** d_batch_outs_href;
+	float* d_outputs;
+	float** d_outputs_href;
+	float** d_batch_outs_href;
 	int* outputLayerOffsets;
 	int* d_outputLayerOffsets;
-	double* d_weights;
-	double** d_weights_href;
-	double** d_gradient_href;
-	double** d_batch_grad_href;
+	float* d_weights;
+	float** d_weights_href;
+	float** d_gradient_href;
+	float** d_moments_href;
+	float** d_batch_moments_href;
+	float** d_batch_grad_href;
 	int* d_weightLayerOffsets;
 	int* weightLayerOffsets;
-	double* d_error_terms;
-	double** d_error_terms_href;
-	double** d_batch_errors_href;
+	float* d_error_terms;
+	float** d_error_terms_href;
+	float** d_batch_errors_href;
 	activation_function* d_A_Fs;
 	loss_function* d_L_F; //I think pointer to pass to GPU
-	double* d_loss;
-	double* d_eta;
+	float* d_loss;
+	float* d_eta;
 
-	vector<vector<double>> batch_out;
-	vector<vector<double>> batch_err;
-	vector<vector<double>> batch_gradient;
+	vector<vector<float>> batch_out;
+	vector<vector<float>> batch_err;
+	vector<vector<float>> batch_gradient;
+	cudaStream_t* streams;
+	vector<vector<float>> batch_moments;
 
-	vector<vector<vector<double>>> h_weights;
+	vector<vector<vector<float>>> h_weights;
 	vector<vector<int>> weight_lengths;
 	int batchSize;
 	int termSize;
 	int outputSize;
 	vector<activation_function> h_A_Fs;
 	//vector<int> cells_in_layer;
-	//double bias;
-	//double eta;
+	//float bias;
+	//float eta;
 	//loss_function L_F;
-	//vector<vector<double> > outputs;
-	//vector<vector<double> > error_terms;
+	//vector<vector<float> > outputs;
+	//vector<vector<float> > error_terms;
 };

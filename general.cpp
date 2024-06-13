@@ -1,15 +1,15 @@
 #include "general.h"
 
-void xavier_init(vector<vector<double>>& weights, int input_size, int output_size) {
+void xavier_init(vector<vector<float>>& weights, int input_size, int output_size) {
 	// Define a random number generator
 	default_random_engine generator;
-	normal_distribution<double> distribution(0.0, 1.0);
+	normal_distribution<float> distribution(0.0, 1.0);
 
 	// Resize the weights matrix to the appropriate size
-	weights.resize(output_size, vector<double>(input_size));
+	weights.resize(output_size, vector<float>(input_size));
 
 	// Compute the scaling factor
-	double scaling_factor = sqrt(6.0 / (input_size + output_size));
+	float scaling_factor = sqrt(6.0 / (input_size + output_size));
 
 	// Fill the weights matrix with random values
 	for (int i = 0; i < output_size; i++) {
@@ -19,20 +19,20 @@ void xavier_init(vector<vector<double>>& weights, int input_size, int output_siz
 	}
 }
 
-double frand() {
-	return (2.0 * (double)rand() / RAND_MAX) - 1.0;
+float frand() {
+	return (2.0 * (float)rand() / RAND_MAX) - 1.0;
 }
 
-double getSum(vector<double> x) {
-	double sum = 0;
+float getSum(vector<float> x) {
+	float sum = 0;
 	for (int i = 0;i < x.size();i++) {
 		sum += x[i];
 	}
 	return sum;
 }
 
-double max(vector<double> x) {
-	double max = 0;
+float max(vector<float> x) {
+	float max = 0;
 	for (int i = 0;i < x.size();i++) {
 		if (x[i] > max) max = x[i];
 	}
@@ -61,7 +61,7 @@ void printArray(int* arr, int size) {
 	}
 	printf("]\n");
 }
-void printArray(double* arr, int size) {
+void printArray(float* arr, int size) {
 	printf("[");
 	for (int i = 0;i < size;i++) {
 		printf("% f, ", arr[i]);
@@ -70,7 +70,7 @@ void printArray(double* arr, int size) {
 }
 
 void printExecution(char* s, clock_t start, clock_t end) {
-	printf("%s: %4.7f\n", s, (double)((double)(end - start) / CLOCKS_PER_SEC));
+	printf("%s: %4.7f\n", s, (float)((float)(end - start) / CLOCKS_PER_SEC));
 }
 
 void sum_array_cpu(int* a, int* b, int* c, int size) {
@@ -97,7 +97,7 @@ void compare_arrays(int* a, int* b, int size) {
 	printf("SUCCESS Arrays are the same\n");
 }
 
-void compare_arrays(double* a, double* b, int size) {
+void compare_arrays(float* a, float* b, int size) {
 	for (int i = 0;i < size;i++) {
 		if (a[i] != b[i]) {
 			printf("%d :: %d\n", a[i], b[i]);
@@ -116,8 +116,8 @@ int getSum(int* a, int size) {
 	return sum;
 }
 
-int getSum(double* a, int size) {
-	double sum = 0;
+int getSum(float* a, int size) {
+	float sum = 0;
 	for (int i = 0;i < size;i++) {
 		sum += a[i];
 	}
@@ -132,8 +132,8 @@ void transpose(int* mat, int* trans, int nx, int ny) {
 	}
 }
 
-void average3D(vector<vector<vector<double>>>* a, vector<vector<double>>* b) {
-	double sum;
+void average3D(vector<vector<vector<float>>>* a, vector<vector<float>>* b) {
+	float sum;
 	int bSize = a->size();
 
 	for (int l = 0;l < (*a)[0].size();l++) {
@@ -148,11 +148,11 @@ void average3D(vector<vector<vector<double>>>* a, vector<vector<double>>* b) {
 
 }
 
-void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> b) {
+void compare3D(vector<vector<vector<float>>> a, vector<vector<vector<float>>> b) {
 	for (int i = 0;i < a.size();i++) {
 		for (int j = 0;j < a[i].size();j++) {
 			for (int k = 0;k < a[i][j].size();k++) {
-				if (a[i][j][k] != b[i][j][k]) {
+				if (a[i][j][k] - b[i][j][k] < -1 * .000001 && a[i][j][k] - b[i][j][k] > .000001) {
 					printf("%f :: %f\n", a[i][j][k], b[i][j][k]);
 					printf("\nARRAYS ARE DIFFERENT\n\n");
 					return;
@@ -163,7 +163,7 @@ void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> 
 	printf("SUCCESS Arrays are the same\n");
 }
 
-bool compare2D(vector<vector<double>> a, vector<vector<double>> b) {
+bool compare2D(vector<vector<float>> a, vector<vector<float>> b) {
 	for (int i = 0;i < a.size();i++) {
 		for (int j = 0;j < a[i].size();j++) {
 			if (a[i][j] - b[i][j] < -1 * .000001 && a[i][j] - b[i][j] > .000001) {
@@ -180,7 +180,7 @@ bool compare2D(vector<vector<double>> a, vector<vector<double>> b) {
 	return true;
 }
 
-void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels) {
+void shuffleData(vector<vector<float>>& images, vector<vector<float>>& labels) {
 	// Seed with a real random value, if available
 	random_device rd;
 
@@ -195,8 +195,8 @@ void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels)
 	shuffle(indices.begin(), indices.end(), g);
 
 	// Create temporary vectors to hold the shuffled data
-	vector<vector<double>> shuffledImages(images.size());
-	vector<vector<double>> shuffledLabels(labels.size());
+	vector<vector<float>> shuffledImages(images.size());
+	vector<vector<float>> shuffledLabels(labels.size());
 
 	// Rearrange the data according to the shuffled indices
 	for (size_t i = 0; i < indices.size(); ++i) {
@@ -209,8 +209,8 @@ void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels)
 	labels.swap(shuffledLabels);
 }
 
-//vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize) {
-//	vector<vector<vector<double>>> batches;
+//vector<vector<vector<float>>> batchify(vector<vector<float>>* data, int batchSize) {
+//	vector<vector<vector<float>>> batches;
 //	int examples = data->size();
 //	if (examples % batchSize != 0) {
 //		printf("BATCHES NOT EVEN");
@@ -221,7 +221,7 @@ void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels)
 //	int k = 0;
 //
 //	for (int i = 0;i < num_batches;i++) {
-//		batches.push_back(vector<vector<double>>());
+//		batches.push_back(vector<vector<float>>());
 //		for (int j = 0;j < batchSize;j++) {
 //			batches[i].push_back((*data)[k]);
 //			k++;
@@ -230,9 +230,9 @@ void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels)
 //	return batches;
 //}
 
-vector<vector<double>> autoencode(vector<vector<double>> set, int size) {
-	vector<double> temp(size, 0);
-	vector<vector<double>> res(set.size(), vector<double>(size));
+vector<vector<float>> autoencode(vector<vector<float>> set, int size) {
+	vector<float> temp(size, 0);
+	vector<vector<float>> res(set.size(), vector<float>(size));
 	for (int i = 0;i < set.size();i++) {
 		temp[set[i][0]] = 1;
 		res[i] = temp;
@@ -242,7 +242,7 @@ vector<vector<double>> autoencode(vector<vector<double>> set, int size) {
 }
 
 
-void write4D(vector<vector<vector<vector<double>>>> vec4d) {
+void write4D(vector<vector<vector<vector<float>>>> vec4d) {
 	ofstream file("weights.txt");
 
 	for (const auto& dim1 : vec4d) {
@@ -265,7 +265,7 @@ void write4D(vector<vector<vector<vector<double>>>> vec4d) {
 	file.close();
 }
 
-void write2D(vector<vector<double>> vec2d) {
+void write2D(vector<vector<float>> vec2d) {
 	ofstream file("outputs.txt");
 
 	for (const auto& row : vec2d) {

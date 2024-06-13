@@ -8,40 +8,40 @@ inline void gpuAssert(cudaError code, const char* file, int line) {
 	}
 }
 
-void cudaAllocate2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a) {
+void cudaAllocate2dOffVectorHostRef(float*** d_a, vector<vector<float>> h_a) {
 	bool vocal = false;
-	*d_a = new double* [h_a.size()];
+	*d_a = new float* [h_a.size()];
 	for (int i = 0;i < h_a.size();i++) {
 		if (vocal) printf("size %d: %d\n", i, h_a[i].size());
-		cudaMalloc((void**)&(*d_a)[i], sizeof(double) * h_a[i].size());
-		cudaMemcpy((*d_a)[i], &(h_a)[i][0], sizeof(double) * h_a[i].size(), cudaMemcpyHostToDevice);
+		cudaMalloc((void**)&(*d_a)[i], sizeof(float) * h_a[i].size());
+		cudaMemcpy((*d_a)[i], &(h_a)[i][0], sizeof(float) * h_a[i].size(), cudaMemcpyHostToDevice);
 	}
 	if (vocal) printf("\n");
 }
 
-void cudaFree2dHostRef(double*** d_a, int size) {
+void cudaFree2dHostRef(float*** d_a, int size) {
 	for (int i = 0;i < size;i++) {
 		cudaFree((*d_a)[i]);
 	}
 }
 
-void cudaMemCopy2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a) {
+void cudaMemCopy2dOffVectorHostRef(float*** d_a, vector<vector<float>> h_a) {
 	bool vocal = false;
 	for (int i = 0;i < h_a.size();i++) {
 		if (vocal) printf("size %d: %d\n", i, h_a[i].size());
-		//cudaMalloc((void**)&(*d_a)[i], sizeof(double) * h_a[i].size());
-		cudaMemcpy((*d_a)[i], &(h_a)[i][0], sizeof(double) * h_a[i].size(), cudaMemcpyHostToDevice);
+		//cudaMalloc((void**)&(*d_a)[i], sizeof(float) * h_a[i].size());
+		cudaMemcpy((*d_a)[i], &(h_a)[i][0], sizeof(float) * h_a[i].size(), cudaMemcpyHostToDevice);
 	}
 	if (vocal) printf("\n");
 }
 
-void cudaAllocateFull2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_a, int batchSize) {
-	*d_a = new double* [batchSize];
+void cudaAllocateFull2dOffVectorHostRef(float*** d_a, vector<vector<float>> h_a, int batchSize) {
+	*d_a = new float* [batchSize];
 	int size = 0;
 	for (int i = 0;i < h_a.size();i++) {
 		size += h_a[i].size();
 	}
-	double* a = new double[size];
+	float* a = new float[size];
 	int c = 0;
 	for (int i = 0;i < h_a.size();i++) {
 		for (int j = 0;j < h_a[i].size();j++) {
@@ -51,19 +51,19 @@ void cudaAllocateFull2dOffVectorHostRef(double*** d_a, vector<vector<double>> h_
 	}
 	if (c != size) printf("WHA HAPPEN\n");
 	for (int i = 0;i < batchSize;i++) {
-		cudaMalloc((void**)&(*d_a)[i], sizeof(double) * size);
-		cudaMemcpy((*d_a)[i], a, sizeof(double) * size, cudaMemcpyHostToDevice);
+		cudaMalloc((void**)&(*d_a)[i], sizeof(float) * size);
+		cudaMemcpy((*d_a)[i], a, sizeof(float) * size, cudaMemcpyHostToDevice);
 	}
 }
 
-void cudaAllocate3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> h_a) {
-	*d_a = new double* [h_a.size()];
+void cudaAllocate3dOffVectorHostRef(float*** d_a, vector<vector<vector<float>>> h_a) {
+	*d_a = new float* [h_a.size()];
 	for (int i = 0;i < h_a.size();i++) {
 		cudaAllocate2dOffVector(&(*d_a)[i], h_a[i]);
 	}
 }
 
-void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs, int** lengths) {
+void cudaAllocate2dOffVector(float** d_a, vector<vector<float>> h_inputs, int** lengths) {
 	int size = 0;
 	int* lens = new int[h_inputs.size()];
 	for (int i = 0;i < h_inputs.size();i++) {
@@ -71,8 +71,8 @@ void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs, int*
 		lens[i] = h_inputs[0].size();
 	}
 	*lengths = lens;
-	cudaMalloc((void**)&(*d_a), size * sizeof(double));
-	double* h_a = new double[size];
+	cudaMalloc((void**)&(*d_a), size * sizeof(float));
+	float* h_a = new float[size];
 	int c = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		for (int j = 0;j < h_inputs[0].size();j++) {
@@ -80,18 +80,18 @@ void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs, int*
 			c++;
 		}
 	}
-	cudaMemcpy(*d_a, h_a, size * sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy(*d_a, h_a, size * sizeof(float), cudaMemcpyHostToDevice);
 	free(lens);
 	free(h_a);
 }
 
-void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs) {
+void cudaAllocate2dOffVector(float** d_a, vector<vector<float>> h_inputs) {
 	int size = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		size += h_inputs[i].size();
 	}
-	cudaMalloc((void**)&(*d_a), size * sizeof(double));
-	double* h_a = new double[size];
+	cudaMalloc((void**)&(*d_a), size * sizeof(float));
+	float* h_a = new float[size];
 	int c = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		for (int j = 0;j < h_inputs[i].size();j++) {
@@ -99,20 +99,20 @@ void cudaAllocate2dOffVector(double** d_a, vector<vector<double>> h_inputs) {
 			c++;
 		}
 	}
-	cudaMemcpy(*d_a, h_a, size * sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy(*d_a, h_a, size * sizeof(float), cudaMemcpyHostToDevice);
 	free(h_a);
 }
 
 
-void cudaAllocate3dOffVector(double** d_a, vector<vector<vector<double>>> h_inputs) {
+void cudaAllocate3dOffVector(float** d_a, vector<vector<vector<float>>> h_inputs) {
 	int size = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		for (int j = 0;j < h_inputs[i].size();j++) {
 			size += h_inputs[i][j].size();
 		}
 	}
-	cudaMalloc((void**)&(*d_a), size * sizeof(double));
-	double* h_a = new double[size];
+	cudaMalloc((void**)&(*d_a), size * sizeof(float));
+	float* h_a = new float[size];
 	int c = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		for (int j = 0;j < h_inputs[i].size();j++) {
@@ -122,16 +122,16 @@ void cudaAllocate3dOffVector(double** d_a, vector<vector<vector<double>>> h_inpu
 			}
 		}
 	}
-	cudaMemcpy(*d_a, h_a, size * sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy(*d_a, h_a, size * sizeof(float), cudaMemcpyHostToDevice);
 	free(h_a);
 }
 
-void cudaMemcpy2dOffVector(double** d_a, vector<vector<double>> h_inputs) {
+void cudaMemcpy2dOffVector(float** d_a, vector<vector<float>> h_inputs) {
 	int size = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		size += h_inputs[i].size();
 	}
-	double* h_a = new double[size];
+	float* h_a = new float[size];
 	int c = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		for (int j = 0;j < h_inputs[i].size();j++) {
@@ -139,18 +139,18 @@ void cudaMemcpy2dOffVector(double** d_a, vector<vector<double>> h_inputs) {
 			c++;
 		}
 	}
-	cudaMemcpy(*d_a, h_a, size * sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy(*d_a, h_a, size * sizeof(float), cudaMemcpyHostToDevice);
 	free(h_a);
 }
 
-void cudaMemcpy3dOffVector(double** d_a, vector<vector<vector<double>>> h_inputs) {
+void cudaMemcpy3dOffVector(float** d_a, vector<vector<vector<float>>> h_inputs) {
 	int size = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		for (int j = 0;j < h_inputs[i].size();j++) {
 			size += h_inputs[i][j].size();
 		}
 	}
-	double* h_a = new double[size];
+	float* h_a = new float[size];
 	int c = 0;
 	for (int i = 0;i < h_inputs.size();i++) {
 		for (int j = 0;j < h_inputs[i].size();j++) {
@@ -160,32 +160,32 @@ void cudaMemcpy3dOffVector(double** d_a, vector<vector<vector<double>>> h_inputs
 			}
 		}
 	}
-	cudaMemcpy(*d_a, h_a, size * sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy(*d_a, h_a, size * sizeof(float), cudaMemcpyHostToDevice);
 	free(h_a);
 }
 
-void cudaMemcpy3dOffVectorHostRef(double*** d_a, vector<vector<vector<double>>> h_a) {
+void cudaMemcpy3dOffVectorHostRef(float*** d_a, vector<vector<vector<float>>> h_a) {
 	for (int i = 0;i < h_a.size();i++) {
 		cudaMemcpy2dOffVector((*d_a) + i, h_a[i]);
 	}
 }
 
-vector<vector<double>> cudaCopy2dBackToVector(double** d_a, vector<int> lengths) {
+vector<vector<float>> cudaCopy2dBackToVector(float** d_a, vector<int> lengths) {
 	vector<int> offsets;
 	offsets.push_back(0);
 	for (int i = 1;i < lengths.size();i++) {
 		offsets.push_back(offsets[i - 1] + lengths[i - 1]);
 	}
-	vector<vector<double>> a;
+	vector<vector<float>> a;
 	int size = 0;
 	for (int i = 0;i < lengths.size();i++) {
 		size += lengths[i];
 	}
-	double* h_a = new double[size];
-	cudaMemcpy(h_a, *d_a, size * sizeof(double), cudaMemcpyDeviceToHost);
+	float* h_a = new float[size];
+	cudaMemcpy(h_a, *d_a, size * sizeof(float), cudaMemcpyDeviceToHost);
 
 	for (int i = 0;i < lengths.size();i++) {
-		a.push_back(vector<double>());
+		a.push_back(vector<float>());
 		for (int j = 0;j < lengths[i];j++) {
 			a[i].push_back(h_a[offsets[i] + j]);
 		}
@@ -195,7 +195,7 @@ vector<vector<double>> cudaCopy2dBackToVector(double** d_a, vector<int> lengths)
 	return a;
 }
 
-vector<vector<vector<double>>> cudaCopy3dBackToVector(double** d_a, vector<vector<int>> lengths) {
+vector<vector<vector<float>>> cudaCopy3dBackToVector(float** d_a, vector<vector<int>> lengths) {
 	vector<int> offsets;
 	offsets.push_back(0);
 	for (int i = 1;i < lengths.size();i++) {
@@ -205,22 +205,22 @@ vector<vector<vector<double>>> cudaCopy3dBackToVector(double** d_a, vector<vecto
 		}
 		offsets.push_back(offsets[i - 1] + sum);
 	}
-	vector<vector<vector<double>>> a;
+	vector<vector<vector<float>>> a;
 	int size = 0;
 	for (int i = 0;i < lengths.size();i++) {
-		double sum = 0;
+		float sum = 0;
 		for (int j = 0;j < lengths[i].size();j++) {
 			sum += lengths[i][j];
 		}
 		size += sum;
 	}
-	double* h_a = new double[size];
-	cudaMemcpy(h_a, *d_a, size * sizeof(double), cudaMemcpyDeviceToHost);
+	float* h_a = new float[size];
+	cudaMemcpy(h_a, *d_a, size * sizeof(float), cudaMemcpyDeviceToHost);
 	int c = 0;
 	for (int i = 0;i < lengths.size();i++) {
-		a.push_back(vector<vector<double>>());
+		a.push_back(vector<vector<float>>());
 		for (int j = 0;j < lengths[i].size();j++) {
-			a[i].push_back(vector<double>());
+			a[i].push_back(vector<float>());
 			for (int k = 0;k < lengths[i][j];k++) {
 				//a[i][j].push_back(h_a[offsets[i] + j * lengths[i][j] + k]);
 				a[i][j].push_back(h_a[c]);
@@ -233,49 +233,49 @@ vector<vector<vector<double>>> cudaCopy3dBackToVector(double** d_a, vector<vecto
 	return a;
 }
 
-vector<double> cudaCopy2dBackTo1dVector(double** d_a, vector<int> lengths) {
+vector<float> cudaCopy2dBackTo1dVector(float** d_a, vector<int> lengths) {
 	vector<int> offsets;
 	offsets.push_back(0);
 	for (int i = 1;i < lengths.size() - 1;i++) {
 		offsets.push_back(offsets[i - 1] + lengths[i - 1]);
 	}
-	vector<vector<double>> a;
+	vector<vector<float>> a;
 	int size = 0;
 	for (int i = 0;i < lengths.size();i++) {
 		size += lengths[i];
 	}
-	vector<double> out(size, 0.0);
-	cudaMemcpy(&out[0], *d_a, size * sizeof(double), cudaMemcpyDeviceToHost);
+	vector<float> out(size, 0.0);
+	cudaMemcpy(&out[0], *d_a, size * sizeof(float), cudaMemcpyDeviceToHost);
 	return out;
 }
 
-vector<vector<double>> cudaCopy2dBackToVectorHref(double** d_a, vector<int> lengths) {
-	vector<vector<double>> a = vector<vector<double>>(lengths.size());
+vector<vector<float>> cudaCopy2dBackToVectorHref(float** d_a, vector<int> lengths) {
+	vector<vector<float>> a = vector<vector<float>>(lengths.size());
 	for (int i = 0;i < lengths.size();i++) {
-		a[i] = vector<double>(lengths[i]);
-		gpuErrorchk(cudaMemcpy(&a[i][0], &(*d_a)[i], sizeof(double) * lengths[i], cudaMemcpyDeviceToHost));
+		a[i] = vector<float>(lengths[i]);
+		gpuErrorchk(cudaMemcpy(&a[i][0], &(*d_a)[i], sizeof(float) * lengths[i], cudaMemcpyDeviceToHost));
 	}
 	return a;
 }
 
-vector<vector<vector<double>>> cudaCopy3dBackToVectorHref(double*** d_a, vector<vector<int>> lengths) {
-	vector<vector<vector<double>>> a;
-	double** h_a_href = new double* [lengths.size()];
+vector<vector<vector<float>>> cudaCopy3dBackToVectorHref(float*** d_a, vector<vector<int>> lengths) {
+	vector<vector<vector<float>>> a;
+	float** h_a_href = new float* [lengths.size()];
 	int size = 0;
 	for (int i = 0;i < lengths.size();i++) {
-		double sum = 0;
+		float sum = 0;
 		for (int j = 0;j < lengths[i].size();j++) {
 			sum += lengths[i][j];
 		}
-		h_a_href[i] = new double[sum];
-		cudaMemcpy(h_a_href[i], (*d_a)[i], sizeof(double) * sum, cudaMemcpyDeviceToHost);
+		h_a_href[i] = new float[sum];
+		cudaMemcpy(h_a_href[i], (*d_a)[i], sizeof(float) * sum, cudaMemcpyDeviceToHost);
 	}
 
 	for (int i = 0;i < lengths.size();i++) {
-		a.push_back(vector<vector<double>>());
+		a.push_back(vector<vector<float>>());
 		int c = 0;
 		for (int j = 0;j < lengths[i].size();j++) {
-			a[i].push_back(vector<double>());
+			a[i].push_back(vector<float>());
 			for (int k = 0;k < lengths[i][j];k++) {
 				a[i][j].push_back(h_a_href[i][c]);
 				c++;
@@ -289,22 +289,22 @@ vector<vector<vector<double>>> cudaCopy3dBackToVectorHref(double*** d_a, vector<
 
 }
 
-vector<vector<double>> cudaCopyBatchBackToVectorHref(double** d_a, int size, int batchSize) {
-	vector<vector<double>> out(batchSize, vector<double>(size));
+vector<vector<float>> cudaCopyBatchBackToVectorHref(float** d_a, int size, int batchSize) {
+	vector<vector<float>> out(batchSize, vector<float>(size));
 	for (int i = 0;i < batchSize;i++) {
-		cudaMemcpy(&out[i][0], &(*d_a)[i * size], sizeof(double) * size, cudaMemcpyDeviceToHost);
+		cudaMemcpy(&out[i][0], &(*d_a)[i * size], sizeof(float) * size, cudaMemcpyDeviceToHost);
 		//printf("COPYING::: %f\n", out[i][0]);
 	}
 	return out;
 }
 
-double*** createBatches(double** hr_a, int batchSize, int examples, int size) {
+float*** createBatches(float** hr_a, int batchSize, int examples, int size) {
 	int batchNum = examples / batchSize;
-	double*** batches = new double** [batchNum];
+	float*** batches = new float** [batchNum];
 
 	int c = 0;
 	for (int i = 0;i < batchNum;i++) {
-		batches[i] = new double* [batchSize];
+		batches[i] = new float* [batchSize];
 		for (int j = 0;j < batchSize;j++) {
 			batches[i][j] = hr_a[c];
 			c++;
@@ -313,7 +313,7 @@ double*** createBatches(double** hr_a, int batchSize, int examples, int size) {
 	return batches;
 }
 
-vector<vector<double>> batchify(vector<vector<double>>* data, int batchSize) {
+vector<vector<float>> batchify(vector<vector<float>>* data, int batchSize) {
 	int examples = data->size();
 	if (examples % batchSize != 0) {
 		printf("BATCHES NOT EVEN");
@@ -323,10 +323,10 @@ vector<vector<double>> batchify(vector<vector<double>>* data, int batchSize) {
 
 	int num_batches = examples / batchSize;
 	int k = 0;
-	vector<vector<double>> batches;
+	vector<vector<float>> batches;
 
 	for (int i = 0;i < num_batches;i++) {
-		batches.push_back(vector<double>());
+		batches.push_back(vector<float>());
 		for (int j = i * batchSize;j < (i + 1) * batchSize;j++) {
 			for (int k = 0;k < (*data)[j].size();k++) {
 				batches[i].push_back((*data)[j][k]);

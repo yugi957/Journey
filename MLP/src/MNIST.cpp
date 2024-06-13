@@ -11,7 +11,7 @@ int reverseInt(int i) {
     return ((int)c1 << 24) + ((int)c2 << 16) + ((int)c3 << 8) + c4;
 }
 
-void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_lbls, vector<vector<double>>* test_imgs, vector<vector<double>>* test_lbls) {
+void getMNIST(vector<vector<float>>* train_imgs, vector<vector<float>>* train_lbls, vector<vector<float>>* test_imgs, vector<vector<float>>* test_lbls) {
     system("cd");
     ifstream train_images("MLP/data/train-images.idx3-ubyte", ios::binary);
     ifstream train_labels("MLP/data/train-labels.idx1-ubyte", ios::binary);
@@ -45,20 +45,20 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
         //for (int i = 0;i < number_of_images;++i){
         unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * n_cols * n_rows);
         for (int i = 0;i < number_of_images;i++) {
-            train_imgs->push_back(vector<double>());
-            train_lbls->push_back(vector<double>());
+            train_imgs->push_back(vector<float>());
+            train_lbls->push_back(vector<float>());
             for (int r = 0;r < n_rows;r++) {
                 for (int c = 0;c < n_cols;c++) {
                     unsigned char temp = 0;
                     train_images.read((char*)&temp, sizeof(unsigned char));
                     //if(i > 60000) printf("Byte %d: %u\n", r * n_cols + c, temp);
                     data[r * n_cols + c] = temp;
-                    (*train_imgs)[i].push_back((double)temp / 255.0);
+                    (*train_imgs)[i].push_back((float)temp / 255.0);
                 }
             }
             unsigned char label = 0;
             train_labels.read((char*)&label, sizeof(unsigned char));
-            (*train_lbls)[i].push_back((double)label);
+            (*train_lbls)[i].push_back((float)label);
             //file.read((char*)data, n_rows * n_cols);
             //Mat image = Mat(n_rows, n_cols, CV_8UC1, data);
             //imshow("Display frame", image);
@@ -99,20 +99,20 @@ void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_
         //for (int i = 0;i < number_of_images;++i){
         unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * n_cols * n_rows);
         for (int i = 0;i < number_of_images;i++) {
-            test_imgs->push_back(vector<double>());
-            test_lbls->push_back(vector<double>());
+            test_imgs->push_back(vector<float>());
+            test_lbls->push_back(vector<float>());
             for (int r = 0;r < n_rows;r++) {
                 for (int c = 0;c < n_cols;c++) {
                     unsigned char temp = 0;
                     test_images.read((char*)&temp, sizeof(unsigned char));
                     //if(i > 60000) printf("Byte %d: %u\n", r * n_cols + c, temp);
                     data[r * n_cols + c] = temp;
-                    (*test_imgs)[i].push_back((double)temp / 255.0);
+                    (*test_imgs)[i].push_back((float)temp / 255.0);
                 }
             }
             unsigned char label = 0;
             test_labels.read((char*)&label, sizeof(unsigned char));
-            (*test_lbls)[i].push_back((double)label);
+            (*test_lbls)[i].push_back((float)label);
             //file.read((char*)data, n_rows * n_cols);
             //Mat image = Mat(n_rows, n_cols, CV_8UC1, data);
             //imshow("Display frame", image);

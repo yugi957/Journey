@@ -15,12 +15,12 @@ using namespace std;
 int main() {
 
 
-	vector<vector<double>> train_imgs, train_lbls, test_imgs, test_lbls;
+	vector<vector<float>> train_imgs, train_lbls, test_imgs, test_lbls;
 
 	getMNIST(&train_imgs, &train_lbls, &test_imgs, &test_lbls);
 
 	int s = train_imgs[0].size();
-	int batchSize = 10;
+	int batchSize = 32;
 	cout << "\n\n---------IMAGE CLASSIFIER----------\n\n";
 
 	printf("Size: %d\n", train_imgs[0].size());
@@ -32,44 +32,50 @@ int main() {
 	mlp->addLayer(500, SIGMOID);
 	mlp->addLayer(300, SIGMOID);
 	mlp->addLayer(10, SOFTMAX);
-	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .2, 0.0, batchSize);
-	mlpar->addLayer(500, SIGMOID);
-	mlpar->addLayer(300, SIGMOID);
+	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .01, .90, batchSize);
+	mlpar->addLayer(500, RELU);
+	mlpar->addLayer(300, RELU);
 	mlpar->addLayer(10, SOFTMAX);
+	/*MultiLayerParatron* mlpara = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .01, 0, batchSize);
+	mlpara->addLayer(500, SIGMOID);
+	mlpara->addLayer(300, SIGMOID);
+	mlpara->addLayer(10, SOFTMAX);*/
 	for (int i = 0;i < mlp->h_weights.size();i++) {
 		for (int j = 0;j < mlp->h_weights[i].size();j++) {
 			for (int k = 0;k < mlp->h_weights[i][j].size();k++) {
 				mlpar->h_weights[i][j][k] = mlp->h_weights[i][j][k];
+				//mlpara->h_weights[i][j][k] = mlp->h_weights[i][j][k];
 			}
 		}
 	}
 
 	mlpar->finalize();
+	//mlpara->finalize();
 	mlp->finalize();
 	cout << "Training Neural Network as Image Classifier...\n";
-	double loss = 0.0;
+	float loss = 0.0;
 	int numBatches = train_imgs.size() / batchSize;
 
 
 	printf("Training on %d images and %d labels...\n", train_imgs.size(), train_lbls.size());
 
-	vector<double> temp = { 0,0,0,0,0,0,0,0,0,0 };
-	//vector<vector<double>> test = {{ 255/255.0,140/255.0,233/255.0,0/255.0,0/255.0,0/255.0,10/255.0,20/255.0,45/255.0,60/255.0}};
-	//vector<vector<double>> test = {{ 255/255.0,140/255.0,233/255.0,0/255.0}};
-	vector<vector<double>> train_encoders;
+	vector<float> temp = { 0,0,0,0,0,0,0,0,0,0 };
+	//vector<vector<float>> test = {{ 255/255.0,140/255.0,233/255.0,0/255.0,0/255.0,0/255.0,10/255.0,20/255.0,45/255.0,60/255.0}};
+	//vector<vector<float>> test = {{ 255/255.0,140/255.0,233/255.0,0/255.0}};
+	vector<vector<float>> train_encoders;
 	for (int i = 0;i < train_lbls.size();i++) {
 		temp[train_lbls[i][0]] = 1;
 		train_encoders.push_back(temp);
 		temp[train_lbls[i][0]] = 0;
 	}
-	double** d_train_imgs, ** d_train_encoders, ** d_test;
+	float** d_train_imgs, ** d_train_encoders, ** d_test;
 	//cudaAllocate2dOffVectorHostRef(&d_test, test);
-	cudaAllocate2dOffVectorHostRef(&d_train_imgs, train_imgs);
-	cudaAllocate2dOffVectorHostRef(&d_train_encoders, train_encoders);
+	//cudaAllocate2dOffVectorHostRef(&d_train_imgs, train_imgs);
+	//cudaAllocate2dOffVectorHostRef(&d_train_encoders, train_encoders);
 
-	vector<vector<double>> x_batches = batchify(&train_imgs, batchSize);
-	vector<vector<double>> y_batches = batchify(&train_encoders, batchSize);
-	double** d_x_batches, ** d_y_batches;
+	vector<vector<float>> x_batches = batchify(&train_imgs, batchSize);
+	vector<vector<float>> y_batches = batchify(&train_encoders, batchSize);
+	float** d_x_batches, ** d_y_batches;
 	cudaAllocate2dOffVectorHostRef(&d_x_batches, x_batches);
 	cudaAllocate2dOffVectorHostRef(&d_y_batches, y_batches);
 	//When shuffling batches, remember to free the batch list and then reallocate
@@ -78,18 +84,18 @@ int main() {
 	int size = test_imgs[0].size();
 
 	clock_t gpu_start, gpu_end;
-	//vector<double> out;
-	//vector<double> o;
+	//vector<float> out;
+	//vector<float> o;
 
 
 	clock_t start, end;
 
-	double l;
+	float l;
 
 	l = 0.0;
 	//loss = 0.0;
-	//vector<vector<double>> out, cleanOut, temparr;
-	vector<double> out, cleanOut, temparr;
+	//vector<vector<float>> out, cleanOut, temparr;
+	vector<float> out, cleanOut, temparr;
 
 
 	int progressCheck = 250;
@@ -97,9 +103,18 @@ int main() {
 	//batch gradient descent
 	gpu_start = clock();
 	for (int j = 0;j < 5;j++) {
-		//if (j == 3) mlpar->eta = .01;
+		if (j == 3) {
+			mlpar->eta = .0001;
+			mlpar->momentum = .98;
+		}
 		for (int i = 0;i < x_batches.size();i++) {
-			loss += mlpar->aveBatchP(d_x_batches[i], d_y_batches[i]);
+			//loss += mlpar->aveBatchP(d_x_batches[i], d_y_batches[i]);
+			loss += mlpar->cleanerbp(d_x_batches[i], d_y_batches[i]);
+			//vector<vector<float>> temp = mlpar->getBatchP(d_x_batches[i], d_y_batches[i]);
+			//vector<vector<vector<float>>> temp = mlpar->h_weights;
+			//l += mlpara->cleanerbp(d_x_batches[i], d_y_batches[i]);
+			//loss += mlpar->getCleanerBp(d_train_imgs[i], d_train_encoders[i]);
+			//compare3D(temp, mlpar->h_weights);
 			//loss += mlpar->batchP(d_x_batches[i], d_y_batches[i]);
 
 			if (i % (progressCheck / batchSize) == 0) {
@@ -114,14 +129,16 @@ int main() {
 			}
 		}
 		printf("Epoch %d completed\n", j);
-		shuffleData(train_imgs, train_encoders);
-		x_batches = batchify(&train_imgs, batchSize);
-		y_batches = batchify(&train_encoders, batchSize);
-		cudaMemCopy2dOffVectorHostRef(&d_x_batches, x_batches);
-		cudaMemCopy2dOffVectorHostRef(&d_y_batches, y_batches);
-		gpu_end = clock();
-		printExecution("Shuffle Time", gpu_start, gpu_end);
-		gpu_start = clock();
+		if (batchSize > 1) {
+			shuffleData(train_imgs, train_encoders);
+			x_batches = batchify(&train_imgs, batchSize);
+			y_batches = batchify(&train_encoders, batchSize);
+			cudaMemCopy2dOffVectorHostRef(&d_x_batches, x_batches);
+			cudaMemCopy2dOffVectorHostRef(&d_y_batches, y_batches);
+			gpu_end = clock();
+			printExecution("Shuffle Time", gpu_start, gpu_end);
+			gpu_start = clock();
+		}
 	}
 
 	//stochastic gradient descent
@@ -142,17 +159,18 @@ int main() {
 	//	}
 	//}
 
-	double** d_test_imgs = new double* [test_imgs.size()];
+	float** d_test_imgs = new float* [test_imgs.size()];
 	cudaAllocate2dOffVectorHostRef(&d_test_imgs, test_imgs);
+	for (int i = 0;i < mlpar->h_weights.size();i++) cudaStreamDestroy(mlpar->streams[i]);
 
-	double correct = 0.0;
+	float correct = 0.0;
 	for (int i = 0;i < test_lbls.size();i++) {
-		//vector<double> out = mlpara->getCleanRun(d_test_imgs[i]);
-		vector<double> out = mlpar->getRun(d_test_imgs[i]);
+		//vector<float> out = mlpara->getCleanRun(d_test_imgs[i]);
+		vector<float> out = mlpar->getRun(d_test_imgs[i]);
 		//mlpar->batchRun(d_x_batches[i]);
-		//vector<double> out = mlp->Wrun(test_imgs[i]);
+		//vector<float> out = mlp->Wrun(test_imgs[i]);
 		int ans = 0;
-		double top = 0.0;
+		float top = 0.0;
 		for (int i = 0;i < 10;i++)
 			if (out[i] > top) {
 				top = out[i];
@@ -163,17 +181,17 @@ int main() {
 		//cout << "] " << ans << " : " << test_lbls[i][0] << endl;
 		if (ans == test_lbls[i][0]) correct++;
 	}
-	double accuracy = correct / (double)test_lbls.size();
+	float accuracy = correct / (float)test_lbls.size();
 	printf("\n\nAccuracy ====== %f\n.... %f correct out of %d tests\n", accuracy, correct, test_lbls.size());
 
 	//correct = 0.0;
 	//for (int i = 0;i < test_lbls.size();i++) {
-	//	//vector<double> out = mlpara->getCleanRun(d_test_imgs[i]);
-	//	vector<double> out = mlpara->getCleanRun(d_test_imgs[i]);
+	//	//vector<float> out = mlpara->getCleanRun(d_test_imgs[i]);
+	//	vector<float> out = mlpara->getCleanRun(d_test_imgs[i]);
 	//	//mlpar->batchRun(d_x_batches[i]);
-	//	//vector<double> out = mlp->Wrun(test_imgs[i]);
+	//	//vector<float> out = mlp->Wrun(test_imgs[i]);
 	//	int ans = 0;
-	//	double top = 0.0;
+	//	float top = 0.0;
 	//	for (int i = 0;i < 10;i++)
 	//		if (out[i] > top) {
 	//			top = out[i];
@@ -184,9 +202,8 @@ int main() {
 	//	//cout << "] " << ans << " : " << test_lbls[i][0] << endl;
 	//	if (ans == test_lbls[i][0]) correct++;
 	//}
-	//accuracy = correct / (double)test_lbls.size();
+	//accuracy = correct / (float)test_lbls.size();
 	//printf("\n\nw/o mom Accuracy ====== %f\n.... %f correct out of %d tests\n", accuracy, correct, test_lbls.size());
-
 
 
 	return 0;

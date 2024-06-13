@@ -6,4 +6,4 @@ using namespace std;
 
 int reverseInt(int i);
 
-void getMNIST(vector<vector<double>>* train_imgs, vector<vector<double>>* train_lbls, vector<vector<double>>* test_imgs, vector<vector<double>>* test_lbls);
+void getMNIST(vector<vector<float>>* train_imgs, vector<vector<float>>* train_lbls, vector<vector<float>>* test_imgs, vector<vector<float>>* test_lbls);

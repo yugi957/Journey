@@ -24,33 +24,36 @@ enum loss_function {
 class MultiLayerPerceptron {
 public:
 	MultiLayerPerceptron();
-	MultiLayerPerceptron(vector<int> cells_in_layer, loss_function func, double bias = 1.0, double eta = 0.01, int batchSize = 0, double momentum = .4);
+	MultiLayerPerceptron(vector<int> cells_in_layer, loss_function func, float bias = 1.0, float eta = 0.01, int batchSize = 0, float momentum = .4);
+	void initializeWeights();
 	void addLayer(int CIL, activation_function func);
+	void addConv(dim3 dims, int padding, activation_function func);
 	void finalize();
-	double run(vector<double> x, vector<double> w, activation_function A_F, int layer);
-	vector<double> softmax(vector<double> x, vector<vector<double>> w);
-	double activation(double x, activation_function A_F);
-	vector<double> Wrun(vector<double> x);
-	vector<vector<double>> batchRun(vector<vector<double>> x);
-	vector<vector<double>> Wout(vector<double> x);
-	double getLoss(vector<double> x, vector<double> y);
-	double Wbp(vector<double> x, vector<double> y);
-	double Mbp(vector<double> x, vector<double> y);
-	void train(vector<vector<double>> train_set, vector<vector<double>> label_set, int epochs, int progressCheck);
+	float run(vector<float> x, vector<float> w, activation_function A_F, int layer);
+	vector<float> softmax(vector<float> x, vector<vector<float>> w);
+	float activation(float x, activation_function A_F);
+	vector<float> Wrun(vector<float> x);
+	vector<vector<float>> batchRun(vector<vector<float>> x);
+	vector<vector<float>> Wout(vector<float> x);
+	float getLoss(vector<float> x, vector<float> y);
+	float Wbp(vector<float> x, vector<float> y);
+	float Mbp(vector<float> x, vector<float> y);
+	void train(vector<vector<float>> train_set, vector<vector<float>> label_set, int epochs, int progressCheck);
 
 	vector<int> cells_in_layer;
-	double bias;
-	double eta;
-	double momentum;
+	float bias;
+	float eta;
+	float momentum;
 	int batchSize;
 	loss_function L_F;
 	vector<activation_function> A_Fs;
-	vector<vector<vector<double>>> h_weights;
-	vector<vector<double> > outputs;
-	vector<vector<vector<double>>> batch_outputs;
-	vector<vector<double> > error_terms;
-	vector<vector<vector<double>>> batch_ETs;
-	vector<vector<vector<vector<double>>>> batch_gradients;
-	vector<vector<vector<double>>> gradient;
+	vector<vector<vector<float>>> h_weights;
+	vector<vector<float> > outputs;
+	vector<vector<vector<float>>> batch_outputs;
+	vector<vector<float> > error_terms;
+	vector<vector<vector<float>>> batch_ETs;
+	vector<vector<vector<vector<float>>>> batch_gradients;
+	vector<vector<vector<float>>> gradient;
+	vector<vector<vector<float>>> moments;
 
 };

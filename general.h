@@ -14,20 +14,20 @@
 
 using namespace std;
 
-void xavier_init(vector<vector<double>>& weights, int input_size, int output_size);
+void xavier_init(vector<vector<float>>& weights, int input_size, int output_size);
 
-double frand();
+float frand();
 
-double getSum(vector<double> x);
+float getSum(vector<float> x);
 
-double max(vector<double> x);
+float max(vector<float> x);
 
 char* createFilename(char* path, string name, char* extension);
 
 void generateRandArray(int* arr, int scale, int size);
 
 void printArray(int* arr, int size);
-void printArray(double* arr, int size);
+void printArray(float* arr, int size);
 
 void printExecution(char* s, clock_t start, clock_t end);
 
@@ -36,21 +36,21 @@ void sum_array_cpu(int* a, int* b, int* c, int size);
 void sum_arrays_cpu(int* a, int* b, int* c, int* d, int size);
 
 void compare_arrays(int* a, int* b, int size);
-void compare_arrays(double* a, double* b, int size);
+void compare_arrays(float* a, float* b, int size);
 
 
 int getSum(int* a, int size);
-int getSum(double* a, int size);
+int getSum(float* a, int size);
 
 void transpose(int* mat, int* trans, int nx, int ny);
-void average3D(vector<vector<vector<double>>>* a, vector<vector<double>>* b);
-void compare3D(vector<vector<vector<double>>> a, vector<vector<vector<double>>> b);
-bool compare2D(vector<vector<double>> a, vector<vector<double>> b);
+void average3D(vector<vector<vector<float>>>* a, vector<vector<float>>* b);
+void compare3D(vector<vector<vector<float>>> a, vector<vector<vector<float>>> b);
+bool compare2D(vector<vector<float>> a, vector<vector<float>> b);
 
-void shuffleData(vector<vector<double>>& images, vector<vector<double>>& labels);
-//vector<vector<vector<double>>> batchify(vector<vector<double>>* data, int batchSize);
+void shuffleData(vector<vector<float>>& images, vector<vector<float>>& labels);
+//vector<vector<vector<float>>> batchify(vector<vector<float>>* data, int batchSize);
 
-vector<vector<double>> autoencode(vector<vector<double>> set, int size);
+vector<vector<float>> autoencode(vector<vector<float>> set, int size);
 
-void write4D(vector<vector<vector<vector<double>>>> vec4d);
-void write2D(vector<vector<double>>);
+void write4D(vector<vector<vector<vector<float>>>> vec4d);
+void write2D(vector<vector<float>>);

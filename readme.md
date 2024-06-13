@@ -1,4 +1,4 @@
-# CUDA Neural Network (ATUL-NN)
+# cuDNN clone by Atul Krishnadas (ATUL-NN)
 
 ATUL-NN is a high-performance neural network library developed in C/C++/CUDA. I built this library to further enhance my understanding of neural network algorithms, and how we uilize GPUs to make deep learning applicable in the real world. ATUL-NN enables users to instantiate fully connected neural networks and train them using abstracted classes. The project includes parallelized forward and backward propagation, convolution operations, and mini-batch training over the GPU from scratch.
 
