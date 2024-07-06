@@ -19,6 +19,67 @@ void xavier_init(vector<vector<float>>& weights, int input_size, int output_size
 	}
 }
 
+
+void he_init(std::vector<std::vector<float>>& weights, int input_size, int output_size) {
+	// Define a random number generator
+	std::default_random_engine generator;
+	std::normal_distribution<float> distribution(0.0, 1.0);
+
+	// Resize the weights matrix to the appropriate size
+	weights.resize(output_size, std::vector<float>(input_size));
+
+	// Compute the scaling factor
+	float scaling_factor = sqrt(2.0 / input_size);
+
+	// Fill the weights matrix with random values
+	for (int i = 0; i < output_size; i++) {
+		for (int j = 0; j < input_size; j++) {
+			weights[i][j] = distribution(generator) * scaling_factor;
+		}
+	}
+}
+
+void xavier_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int input_channels, int output_channels, int kernel_size) {
+	// Define a random number generator
+	default_random_engine generator;
+	normal_distribution<float> distribution(0.0, 1.0);
+
+	// Compute the scaling factor
+	float scaling_factor = sqrt(6.0 / (input_channels * kernel_size * kernel_size + output_channels));
+
+	// Fill the weights tensor with random values
+	for (int oc = 0; oc < output_channels; oc++) {
+		for (int ks1 = 0; ks1 < kernel_size; ks1++) {
+			for (int ks2 = 0; ks2 < kernel_size; ks2++) {
+				for (int ic = 0; ic < input_channels; ic++) {
+					conv_weights[oc][ks1][ks2][ic] = distribution(generator) * scaling_factor;
+				}
+			}
+		}
+	}
+}
+
+void he_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int input_channels, int output_channels, int kernel_size) {
+	// Define a random number generator
+	std::random_device rd;
+	std::mt19937 generator(rd());
+	std::normal_distribution<float> distribution(0.0, 1.0);
+
+	// Compute the scaling factor
+	float scaling_factor = sqrt(2.0 / (input_channels * kernel_size * kernel_size));
+
+	// Fill the weights tensor with random values
+	for (int oc = 0; oc < output_channels; oc++) {
+		for (int ks1 = 0; ks1 < kernel_size; ks1++) {
+			for (int ks2 = 0; ks2 < kernel_size; ks2++) {
+				for (int ic = 0; ic < input_channels; ic++) {
+					conv_weights[oc][ks1][ks2][ic] = distribution(generator) * scaling_factor;
+				}
+			}
+		}
+	}
+}
+
 float frand() {
 	return (2.0 * (float)rand() / RAND_MAX) - 1.0;
 }
@@ -152,8 +213,23 @@ void compare3D(vector<vector<vector<float>>> a, vector<vector<vector<float>>> b)
 	for (int i = 0;i < a.size();i++) {
 		for (int j = 0;j < a[i].size();j++) {
 			for (int k = 0;k < a[i][j].size();k++) {
-				if (a[i][j][k] - b[i][j][k] < -1 * .000001 && a[i][j][k] - b[i][j][k] > .000001) {
+				if (a[i][j][k] - b[i][j][k] < -1 * .000001 || a[i][j][k] - b[i][j][k] > .000001) {
 					printf("%f :: %f\n", a[i][j][k], b[i][j][k]);
+					printf("\nARRAYS ARE DIFFERENT\n\n");
+					return;
+				}
+			}
+		}
+	}
+	printf("SUCCESS Arrays are the same\n");
+}
+
+void compareHtoConvWeight(vector<vector<vector<float>>> a, vector<vector<vector<vector<vector<float>>>>> b) {
+	for (int i = 0;i < a.size();i++) {
+		for (int j = 0;j < a[i].size();j++) {
+			for (int k = 0;k < a[i][j].size();k++) {
+				if (a[i][j][k] - b[i][0][0][j][k] < -1 * .000001 || a[i][j][k] - b[i][0][0][j][k] > .000001) {
+					printf("%f :: %f\n", a[i][j][k], b[i][0][0][j][k]);
 					printf("\nARRAYS ARE DIFFERENT\n\n");
 					return;
 				}
@@ -166,7 +242,7 @@ void compare3D(vector<vector<vector<float>>> a, vector<vector<vector<float>>> b)
 bool compare2D(vector<vector<float>> a, vector<vector<float>> b) {
 	for (int i = 0;i < a.size();i++) {
 		for (int j = 0;j < a[i].size();j++) {
-			if (a[i][j] - b[i][j] < -1 * .000001 && a[i][j] - b[i][j] > .000001) {
+			if (a[i][j] - b[i][j] < -1 * .000001 || a[i][j] - b[i][j] > .000001) {
 				//if(a[i][j] == b[i][j]){
 				printf("%f :: %f\n", a[i][j], b[i][j]);
 				printf("---- %f ----\n", a[i][j] - b[i][j]);

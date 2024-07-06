@@ -34,7 +34,7 @@ void cudaMemcpy3dOffVectorHostRef(float*** d_a, vector<vector<vector<float>>> h_
 vector<vector<float>> cudaCopy2dBackToVector(float** d_a, vector<int> lengths);
 
 vector<vector<vector<float>>> cudaCopy3dBackToVector(float** d_a, vector<vector<int>> lengths);
-vector<vector<float>> cudaCopy2dBackToVectorHref(float** d_a, vector<int> lengths);
+vector<vector<float>> cudaCopy2dBackToVectorHref(float*** d_a, vector<int> lengths);
 vector<vector<vector<float>>> cudaCopy3dBackToVectorHref(float*** d_a, vector<vector<int>> lengths);
 vector<vector<float>> cudaCopyBatchBackToVectorHref(float** d_a, int size, int batchSize);
 

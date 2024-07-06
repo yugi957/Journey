@@ -26,24 +26,7 @@ MultiLayerParatron::MultiLayerParatron(vector<int> CIL, loss_function func, floa
 }
 
 void MultiLayerParatron::finalize() {
-    weightLayerOffsets = new int[cells_in_layer.size() - 1];
-    weightLayerOffsets[0] = 0;
-    for (int i = 1;i < cells_in_layer.size() - 1;i++) {
-        weightLayerOffsets[i] = weightLayerOffsets[i - 1] + (cells_in_layer[i] * (cells_in_layer[i - 1] + 1));
-    }
-    cudaMalloc((void**)&d_weightLayerOffsets, sizeof(int) * (cells_in_layer.size() - 1));
-    cudaMemcpy(d_weightLayerOffsets, weightLayerOffsets, sizeof(int) * (cells_in_layer.size() - 1), cudaMemcpyHostToDevice);
-
-    outputLayerOffsets = new int[cells_in_layer.size()];
-    outputLayerOffsets[0] = 0;
-    for (int i = 1;i <= cells_in_layer.size();i++) {
-        outputLayerOffsets[i] = outputLayerOffsets[i - 1] + cells_in_layer[i - 1];
-    }
-    cudaMalloc((void**)&d_outputLayerOffsets, sizeof(int) * (cells_in_layer.size() + 1));
-    cudaMemcpy(d_outputLayerOffsets, outputLayerOffsets, sizeof(int) * (cells_in_layer.size() + 1), cudaMemcpyHostToDevice);
     int size = sizeof(float);
-    cudaMalloc((void**)&d_CIL, size * cells_in_layer.size());
-    cudaMemcpy(d_CIL, &cells_in_layer[0], size * cells_in_layer.size(), cudaMemcpyHostToDevice);
     cudaAllocate2dOffVector(&d_outputs, outputs);
     cudaAllocate2dOffVectorHostRef(&d_outputs_href, outputs);
     for (int i = 0;i < h_weights.size();i++) {
@@ -218,7 +201,8 @@ vector<vector<float>> MultiLayerParatron::getCleanerBp(float* x, float* y) {
     //return cudaCopy2dBackToVectorHref(d_error_terms_href, vector<int>({ 512,512,10 }));
     //return cudaCopy2dBackToVectorHref(&d_error_terms_href[layers - 1], vector<int>({10}));
     this->h_weights = cudaCopy3dBackToVectorHref(&d_weights_href, weight_lengths);
-    return cudaCopy2dBackToVectorHref(d_weights_href, vector<int>({ 785 * 512,513 * 512,513 * 10 }));
+    //return cudaCopy2dBackToVectorHref(d_weights_href, vector<int>({ 785 * 512,513 * 512,513 * 10 }));
+    return { {} };
 }
 
 float MultiLayerParatron::aveBatchP(float* batchX, float* batchY) {
@@ -273,5 +257,11 @@ vector<vector<float>> MultiLayerParatron::getAveP(float* batchX, float* batchY) 
     float* test = new float;
     //cudaMemcpy(test, d_weights_href[0], sizeof(float), cudaMemcpyDeviceToHost);
     //printf("WEIGHT TEST: %f\n", test);
-    return cudaCopy2dBackToVectorHref(d_weights_href, vector<int>({ 785 * 512,513 * 512,513 * 10 }));
+    return cudaCopy2dBackToVectorHref(&d_weights_href, vector<int>({ 785 * 512,513 * 512,513 * 10 }));
+}
+
+void MultiLayerParatron::toCPU() {
+    this->h_weights = cudaCopy3dBackToVectorHref(&d_weights_href, weight_lengths);
+    this->error_terms = cudaCopy2dBackToVectorHref(&d_error_terms_href, vector<int>(cells_in_layer.begin() + 1, cells_in_layer.end()));
+    this->outputs = cudaCopy2dBackToVectorHref(&d_outputs_href, cells_in_layer);
 }

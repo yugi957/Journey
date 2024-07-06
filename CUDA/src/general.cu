@@ -249,11 +249,11 @@ vector<float> cudaCopy2dBackTo1dVector(float** d_a, vector<int> lengths) {
 	return out;
 }
 
-vector<vector<float>> cudaCopy2dBackToVectorHref(float** d_a, vector<int> lengths) {
+vector<vector<float>> cudaCopy2dBackToVectorHref(float*** d_a, vector<int> lengths) {
 	vector<vector<float>> a = vector<vector<float>>(lengths.size());
 	for (int i = 0;i < lengths.size();i++) {
 		a[i] = vector<float>(lengths[i]);
-		gpuErrorchk(cudaMemcpy(&a[i][0], &(*d_a)[i], sizeof(float) * lengths[i], cudaMemcpyDeviceToHost));
+		gpuErrorchk(cudaMemcpy(&a[i][0], (*d_a)[i], sizeof(float) * lengths[i], cudaMemcpyDeviceToHost));
 	}
 	return a;
 }

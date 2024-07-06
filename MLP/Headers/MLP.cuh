@@ -25,20 +25,17 @@ public:
 	float aveBatchP(float* batchX, float* batchY);
 	vector<vector<float>> getAveP(float* batchX, float* batchY);
 
-	int* d_CIL;
+	void toCPU();
+
 	float* d_outputs;
 	float** d_outputs_href;
 	float** d_batch_outs_href;
-	int* outputLayerOffsets;
-	int* d_outputLayerOffsets;
 	float* d_weights;
 	float** d_weights_href;
 	float** d_gradient_href;
 	float** d_moments_href;
 	float** d_batch_moments_href;
 	float** d_batch_grad_href;
-	int* d_weightLayerOffsets;
-	int* weightLayerOffsets;
 	float* d_error_terms;
 	float** d_error_terms_href;
 	float** d_batch_errors_href;

@@ -46,8 +46,6 @@ __global__ void runCleanParatron(float* input, float* output, float* weights, ac
 	if (gid > CIL) return;
 	int cellOffset = (inputSize + 1) * gid;
 	float* localWeights = weights + cellOffset;
-	//I FR DO NOT UNDERSTAND THIS BUT LIKE IDK
-	if (cellOffset == 0 && CIL == 10 && localWeights[0] == .5) localWeights[0] = -0.88970610675374617;
 
 	float sum = 0;
 	for (int i = 0;i < inputSize;i++) {
@@ -81,11 +79,13 @@ __global__ void getLossSeq(float* x, float* y, float* loss, loss_function* L_F, 
 		for (int i = 0;i < size;i++) {
 			if (x[i] == 0.0) *loss -= y[i] * log(0.00001);
 			else *loss -= y[i] * log(x[i]);
+			//printf("gpu loss[%d]: %f\n", i, *loss);
 			//printf("prediction: %f ; actual: %f\n", x[i], y[i]);
 			//printf("clean: %f * %f = %f\n", y[i], log(x[i]), y[i] * log(x[i]));
 		}
 		break;
 	}
+	//printf("\n");
 	//printf("clean loss: %f\n", *loss);
 }
 
@@ -178,6 +178,9 @@ __global__ void runBatchParatron(float* input, float* output, float* weights, ac
 		sum = 1 / (1 + exp(-sum)); //sigmoid
 		break;
 	case RELU:
+		sum = (sum > 0) ? sum : 0; //ReLu
+		break;
+	case LEAKY_RELU:
 		sum = (sum > 0) ? sum : (.1 * sum); //ReLu
 		break;
 	case SOFTMAX:
@@ -296,6 +299,9 @@ __global__ void batchGradient(float* weights, float* for_terms, float* terms, fl
 		derivative = outputs[cid + offset] * (1 - outputs[cid + offset]);
 		break;
 	case(RELU):
+		derivative = (outputs[cid + offset] > 0) ? 1.0f : 0.0f;
+		break;
+	case(LEAKY_RELU):
 		derivative = (outputs[cid + offset] > 0) ? 1.0f : 0.1f;
 		break;
 	}

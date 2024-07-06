@@ -16,6 +16,12 @@ using namespace std;
 
 void xavier_init(vector<vector<float>>& weights, int input_size, int output_size);
 
+void he_init(std::vector<std::vector<float>>& weights, int input_size, int output_size);
+
+void xavier_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int input_channels, int output_channels, int kernel_size);
+
+void he_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int input_channels, int output_channels, int kernel_size);
+
 float frand();
 
 float getSum(vector<float> x);
@@ -46,6 +52,7 @@ void transpose(int* mat, int* trans, int nx, int ny);
 void average3D(vector<vector<vector<float>>>* a, vector<vector<float>>* b);
 void compare3D(vector<vector<vector<float>>> a, vector<vector<vector<float>>> b);
 bool compare2D(vector<vector<float>> a, vector<vector<float>> b);
+void compareHtoConvWeight(vector<vector<vector<float>>> a, vector<vector<vector<vector<vector<float>>>>> b);
 
 void shuffleData(vector<vector<float>>& images, vector<vector<float>>& labels);
 //vector<vector<vector<float>>> batchify(vector<vector<float>>* data, int batchSize);
