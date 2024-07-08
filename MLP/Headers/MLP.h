@@ -35,7 +35,7 @@ enum layer_type {
 class MultiLayerPerceptron {
 public:
 	MultiLayerPerceptron();
-	MultiLayerPerceptron(vector<int> cells_in_layer, loss_function func, float bias = 1.0, float eta = 0.01, int batchSize = 0, float momentum = .4);
+	MultiLayerPerceptron(vector<int> cells_in_layer, loss_function func, float bias = 1.0, float eta = 0.01, float momentum = .4, int batchSize = 0);
 	void initializeWeights();
 	void addLayer(int CIL, activation_function func, vec3 dims = vec3(-1, 1, 1));
 	void addConv(size_t kernel_size, size_t padding, size_t stride, size_t out_depth, activation_function func);

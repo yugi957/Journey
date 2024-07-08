@@ -19,7 +19,7 @@ void MultiLayerPerceptron::initializeWeights() {
 }
 
 
-MultiLayerPerceptron::MultiLayerPerceptron(vector<int> CIL, loss_function func, float bias, float eta, int batchSize, float momentum) {
+MultiLayerPerceptron::MultiLayerPerceptron(vector<int> CIL, loss_function func, float bias, float eta, float momentum, int batchSize) {
     this->cells_in_layer = CIL;
     this->L_F = func;
     this->bias = bias;
@@ -148,6 +148,7 @@ void MultiLayerPerceptron::finalize() {
             c++;
         }
     }
+    cout << endl;
 }
 
 float MultiLayerPerceptron::run(vector<float>& x, vector<float>& w, activation_function A_F, int layer) {
@@ -582,20 +583,20 @@ float MultiLayerPerceptron::backward_conv(vector<float> x, vector<float> y) {
         else if (layers[i + 1] == DENSE) {
             for (int j = 0; j < cells_in_layer[i + 1]; j++) {
                 for (int k = 0; k < cells_in_layer[i]; k++) {
-                    delta = eta * error_terms[i][j] * outputs[i][k];
+                    delta = error_terms[i][j] * outputs[i][k];
                     conv_gradient[i][0][0][j][k] = momentum * conv_gradient[i][0][0][j][k] + delta;
                     if (isnan(delta))
                         printf("w wha\n");
                 }
-                delta = eta * error_terms[i][j] * bias;
+                delta = error_terms[i][j] * bias;
                 conv_gradient[i][0][0][j][cells_in_layer[i]] = momentum * conv_gradient[i][0][0][j][cells_in_layer[i]] + delta;
             }
 
             for (int j = 0; j < cells_in_layer[i + 1]; j++) {
                 for (int k = 0; k < cells_in_layer[i]; k++) {
-                    conv_weights[i][0][0][j][k] -= conv_gradient[i][0][0][j][k];
+                    conv_weights[i][0][0][j][k] -= conv_gradient[i][0][0][j][k] * eta;
                 }
-                conv_weights[i][0][0][j][cells_in_layer[i]] -= conv_gradient[i][0][0][j][cells_in_layer[i]];
+                conv_weights[i][0][0][j][cells_in_layer[i]] -= conv_gradient[i][0][0][j][cells_in_layer[i]] * eta;
             }
         }
     }

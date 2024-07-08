@@ -280,20 +280,18 @@ void max_pool(vec3 a_dim, vector<float>& a, vec3 out_dim, vector<float>& out, si
 
 	size_t a_size = a_dim.x * a_dim.y * a_dim.z;
 	int end = (int)((pool_size / 2.0) + .5);
-	int start = end - pool_size;
 	float max;
 	for (int r = -padding, out_r = 0; out_r < height; r += stride, ++out_r) {
 		for (int c = -padding, out_c = 0; out_c < width; c += stride, ++out_c) {
 			for (int chan = 0;chan < channels;chan++) {
-				max = 0;
+				max = -FLT_MAX;
 				for (int i = 0;i < pool_size;i++) {
 					for (int j = 0;j < pool_size;j++) {
 						int a_id = ((r + i) * a_dim.y * a_dim.z) + ((c + j) * a_dim.z) + chan;
-						float term = 0;
 						if (a_id >= 0 && a_id < a_size) {
-							term = a[a_id];
+							float term = a[a_id];
+							if (term > max) max = term;
 						}
-						if (term > max) max = term;
 					}
 				}
 				out[out_r * width * a_dim.z + out_c * a_dim.z + chan] = max;

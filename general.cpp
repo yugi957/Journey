@@ -20,13 +20,13 @@ void xavier_init(vector<vector<float>>& weights, int input_size, int output_size
 }
 
 
-void he_init(std::vector<std::vector<float>>& weights, int input_size, int output_size) {
+void he_init(vector<vector<float>>& weights, int input_size, int output_size) {
 	// Define a random number generator
-	std::default_random_engine generator;
-	std::normal_distribution<float> distribution(0.0, 1.0);
+	default_random_engine generator;
+	normal_distribution<float> distribution(0.0, 1.0);
 
 	// Resize the weights matrix to the appropriate size
-	weights.resize(output_size, std::vector<float>(input_size));
+	weights.resize(output_size, vector<float>(input_size));
 
 	// Compute the scaling factor
 	float scaling_factor = sqrt(2.0 / input_size);
@@ -61,9 +61,9 @@ void xavier_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int i
 
 void he_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int input_channels, int output_channels, int kernel_size) {
 	// Define a random number generator
-	std::random_device rd;
-	std::mt19937 generator(rd());
-	std::normal_distribution<float> distribution(0.0, 1.0);
+	random_device rd;
+	mt19937 generator(rd());
+	normal_distribution<float> distribution(0.0, 1.0);
 
 	// Compute the scaling factor
 	float scaling_factor = sqrt(2.0 / (input_channels * kernel_size * kernel_size));
@@ -256,6 +256,25 @@ bool compare2D(vector<vector<float>> a, vector<vector<float>> b) {
 	return true;
 }
 
+void compare5D(vector<vector<vector<vector<vector<float>>>>> a, vector<vector<vector<vector<vector<float>>>>> b) {
+	for (int i = 0;i < a.size();i++) {
+		for (int j = 0;j < a[i].size();j++) {
+			for (int k = 0;k < a[i][j].size();k++) {
+				for (int l = 0;l < a[i][j][k].size();l++) {
+					for (int m = 0;m < a[i][j][k][l].size();m++) {
+						if (a[i][j][k][l][m] - b[i][j][k][l][m] < -1 * .000001 || a[i][j][k][l][m] - b[i][j][k][l][m] > .000001) {
+							printf("%f :: %f\n", a[i][j][k][l][m], b[i][j][k][l][m]);
+							printf("\nARRAYS ARE DIFFERENT\n\n");
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	printf("SUCCESS Arrays are the same\n");
+}
+
 void shuffleData(vector<vector<float>>& images, vector<vector<float>>& labels) {
 	// Seed with a real random value, if available
 	random_device rd;
@@ -304,6 +323,17 @@ void shuffleData(vector<vector<float>>& images, vector<vector<float>>& labels) {
 //		}
 //	}
 //	return batches;
+//}
+
+//template <typename T>
+//vector<T> flatten4D(vector<vector<vector<vector<T>>>>& to_flatten) {
+//	vector<T> flattened = {};
+//	for (auto a : to_flatten)
+//		for (auto b : a)
+//			for (auto c : b)
+//				for (auto val : c)
+//					flattened.push_back(val);
+//	return flattened;
 //}
 
 vector<vector<float>> autoencode(vector<vector<float>> set, int size) {

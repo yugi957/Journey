@@ -18,9 +18,10 @@ int main() {
 	vector<vector<float>> train_imgs, train_lbls, test_imgs, test_lbls;
 
 	getMNIST(&train_imgs, &train_lbls, &test_imgs, &test_lbls);
+	//getFashionMNIST(&train_imgs, &train_lbls, &test_imgs, &test_lbls);
 
 	int s = train_imgs[0].size();
-	int batchSize = 32;
+	int batchSize = 25;
 	cout << "\n\n---------IMAGE CLASSIFIER----------\n\n";
 
 	printf("Size: %d\n", train_imgs[0].size());
@@ -28,11 +29,14 @@ int main() {
 	//mlp->addLayer(512, SIGMOID);
 	//mlp->addLayer(512, SIGMOID);
 	//mlp->addLayer(10, SOFTMAX);
-	MultiLayerPerceptron* mlp = new MultiLayerPerceptron({ s }, CROSS_ENTROPY, 1, .01, batchSize);
-	mlp->addLayer(500, SIGMOID);
-	mlp->addLayer(300, SIGMOID);
-	mlp->addLayer(10, SOFTMAX);
-	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .01, .90, batchSize);
+	//MultiLayerPerceptron* test = new MultiLayerPerceptron({}, CROSS_ENTROPY, 1, .01, 0, 0);
+	//test->addLayer(784, RELU);
+	//test->addLayer(500, RELU);
+	//test->addLayer(300, RELU);
+	//test->addLayer(10, SOFTMAX);
+	//test->finalize();
+	MultiLayerParatron* mlpar = new MultiLayerParatron({ s }, CROSS_ENTROPY, 1, .01, 0.9, batchSize);
+	//mlpar->addLayer(784, RELU);
 	mlpar->addLayer(500, RELU);
 	mlpar->addLayer(300, RELU);
 	mlpar->addLayer(10, SOFTMAX);
@@ -40,18 +44,19 @@ int main() {
 	mlpara->addLayer(500, SIGMOID);
 	mlpara->addLayer(300, SIGMOID);
 	mlpara->addLayer(10, SOFTMAX);*/
-	for (int i = 0;i < mlp->h_weights.size();i++) {
-		for (int j = 0;j < mlp->h_weights[i].size();j++) {
-			for (int k = 0;k < mlp->h_weights[i][j].size();k++) {
-				mlpar->h_weights[i][j][k] = mlp->h_weights[i][j][k];
-				//mlpara->h_weights[i][j][k] = mlp->h_weights[i][j][k];
-			}
-		}
-	}
 
-	mlpar->finalize();
 	//mlpara->finalize();
-	mlp->finalize();
+	//test->finalize();
+	mlpar->finalize();
+	//for (int i = 0;i < test->h_weights.size();i++) {
+	//	for (int j = 0;j < test->h_weights[i].size();j++) {
+	//		for (int k = 0;k < test->h_weights[i][j].size();k++) {
+	//			//mlpar->h_weights[i][j][k] = mlp->h_weights[i][j][k];
+	//			mlpar->h_weights[i][j][k] = test->conv_weights[i][0][0][j][k];
+	//		}
+	//	}
+	//}
+	//compareHtoConvWeight(mlpar->h_weights, test->conv_weights);
 	cout << "Training Neural Network as Image Classifier...\n";
 	float loss = 0.0;
 	int numBatches = train_imgs.size() / batchSize;
@@ -93,34 +98,32 @@ int main() {
 	float l;
 
 	l = 0.0;
-	//loss = 0.0;
-	//vector<vector<float>> out, cleanOut, temparr;
 	vector<float> out, cleanOut, temparr;
 
-
-	int progressCheck = 250;
+	int progressCheck = 500;
 
 	//batch gradient descent
 	gpu_start = clock();
 	for (int j = 0;j < 5;j++) {
 		if (j == 3) {
-			mlpar->eta = .0001;
-			mlpar->momentum = .98;
+			//mlpar->eta = .001;
+			//mlpar->momentum = .98;
 		}
 		for (int i = 0;i < x_batches.size();i++) {
-			//loss += mlpar->aveBatchP(d_x_batches[i], d_y_batches[i]);
-			loss += mlpar->cleanerbp(d_x_batches[i], d_y_batches[i]);
-			//vector<vector<float>> temp = mlpar->getBatchP(d_x_batches[i], d_y_batches[i]);
-			//vector<vector<vector<float>>> temp = mlpar->h_weights;
-			//l += mlpara->cleanerbp(d_x_batches[i], d_y_batches[i]);
-			//loss += mlpar->getCleanerBp(d_train_imgs[i], d_train_encoders[i]);
-			//compare3D(temp, mlpar->h_weights);
-			//loss += mlpar->batchP(d_x_batches[i], d_y_batches[i]);
-
+			//vector<vector<float>> out = mlpar->getCleanerBp(d_x_batches[i], d_y_batches[i]);
+			l += mlpar->aveBatchP(d_x_batches[i], d_y_batches[i]);
+			//loss = test->Wbp(train_imgs[i], train_encoders[i]);
+			//mlpar->toCPU();
+			//compare2D(mlpar->outputs, mlp->outputs);
+			//compare2D(mlpar->error_terms, mlp->error_terms);
+			//compareHtoConvWeight(mlpar->h_weights, mlp->conv_weights);
+			//loss += mlpar->cleanerbp(d_x_batdches[i], d_y_batches[i]);
+			
 			if (i % (progressCheck / batchSize) == 0) {
+			//if (false) {
 				gpu_end = clock();
-				//cout << "Ground Example " << i * batchSize << " error: " << l / ((progressCheck /batchSize)) << endl;
-				cout << "Epoch: " << j << ", Example " << i * batchSize << " error: " << loss / (progressCheck / batchSize) << endl;
+				cout << "Ground Example " << i * batchSize << " error: " << l / ((progressCheck /batchSize)) << endl;
+				//cout << "Epoch: " << j << ", Example " << i * batchSize << " error: " << loss / (progressCheck / batchSize) << endl;
 				cout << endl;
 				l = 0.0;
 				printExecution("Time taken", gpu_start, gpu_end);
@@ -129,16 +132,21 @@ int main() {
 			}
 		}
 		printf("Epoch %d completed\n", j);
-		if (batchSize > 1) {
-			shuffleData(train_imgs, train_encoders);
-			x_batches = batchify(&train_imgs, batchSize);
-			y_batches = batchify(&train_encoders, batchSize);
-			cudaMemCopy2dOffVectorHostRef(&d_x_batches, x_batches);
-			cudaMemCopy2dOffVectorHostRef(&d_y_batches, y_batches);
-			gpu_end = clock();
-			printExecution("Shuffle Time", gpu_start, gpu_end);
-			gpu_start = clock();
-		}
+		cout << "Epoch: " << j << " error: " << loss / (progressCheck / batchSize) << endl;
+		loss = 0.0;
+		gpu_end = clock();
+		printExecution("Time taken", gpu_start, gpu_end);
+		gpu_start = clock();
+		//if (batchSize > 1) {
+		//	shuffleData(train_imgs, train_encoders);
+		//	x_batches = batchify(&train_imgs, batchSize);
+		//	y_batches = batchify(&train_encoders, batchSize);
+		//	cudaMemCopy2dOffVectorHostRef(&d_x_batches, x_batches);
+		//	cudaMemCopy2dOffVectorHostRef(&d_y_batches, y_batches);
+		//	gpu_end = clock();
+		//	printExecution("Shuffle Time", gpu_start, gpu_end);
+		//	gpu_start = clock();
+		//}
 	}
 
 	//stochastic gradient descent
@@ -165,20 +173,15 @@ int main() {
 
 	float correct = 0.0;
 	for (int i = 0;i < test_lbls.size();i++) {
-		//vector<float> out = mlpara->getCleanRun(d_test_imgs[i]);
 		vector<float> out = mlpar->getRun(d_test_imgs[i]);
-		//mlpar->batchRun(d_x_batches[i]);
-		//vector<float> out = mlp->Wrun(test_imgs[i]);
 		int ans = 0;
 		float top = 0.0;
-		for (int i = 0;i < 10;i++)
+		for (int i = 0;i < 10;i++) {
 			if (out[i] > top) {
 				top = out[i];
 				ans = i;
 			}
-		//cout << "image " << i << ": [";
-		//for (int i = 0;i < 10;i++) cout << out[i] << ", ";
-		//cout << "] " << ans << " : " << test_lbls[i][0] << endl;
+		}
 		if (ans == test_lbls[i][0]) correct++;
 	}
 	float accuracy = correct / (float)test_lbls.size();

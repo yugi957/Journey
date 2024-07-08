@@ -1,3 +1,4 @@
+#pragma once
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <stdio.h>
@@ -11,8 +12,15 @@
 #include <random>
 #include <numeric>
 #include <fstream>
+#include <type_traits>
 
 using namespace std;
+
+struct vec3 {
+	int x, y, z;
+	vec3() : x(0), y(0), z(0) {}
+	vec3(int x, int y, int z) : x(x), y(y), z(z) {}
+};
 
 void xavier_init(vector<vector<float>>& weights, int input_size, int output_size);
 
@@ -52,10 +60,22 @@ void transpose(int* mat, int* trans, int nx, int ny);
 void average3D(vector<vector<vector<float>>>* a, vector<vector<float>>* b);
 void compare3D(vector<vector<vector<float>>> a, vector<vector<vector<float>>> b);
 bool compare2D(vector<vector<float>> a, vector<vector<float>> b);
+void compare5D(vector<vector<vector<vector<vector<float>>>>> a, vector<vector<vector<vector<vector<float>>>>> b);
 void compareHtoConvWeight(vector<vector<vector<float>>> a, vector<vector<vector<vector<vector<float>>>>> b);
 
 void shuffleData(vector<vector<float>>& images, vector<vector<float>>& labels);
 //vector<vector<vector<float>>> batchify(vector<vector<float>>* data, int batchSize);
+
+template <typename T>
+vector<T> flatten4D(vector<vector<vector<vector<T>>>>& to_flatten) {
+	vector<T> flattened = {};
+	for (auto a : to_flatten)
+		for (auto b : a)
+			for (auto c : b)
+				for (auto val : c)
+					flattened.push_back(val);
+	return flattened;
+}
 
 vector<vector<float>> autoencode(vector<vector<float>> set, int size);
 
