@@ -308,7 +308,7 @@ __global__ void batchGradient(float* weights, float* for_terms, float* terms, fl
 	terms[cid + offset] = derivative * err_sum;
 }
 
-__global__ void batchMakeGradient(float* grad, float* moments, float* error_terms, float* outputs, float eta, float momentum, int CIL, int forCIL, float bias, int batchSize) {
+__global__ void batchMakeGradient(float* grad, float* error_terms, float* outputs, int CIL, int forCIL, float bias, int batchSize) {
 	int blockId = blockIdx.x * (CIL + 1) * forCIL;
 	int gid = blockId + (CIL + 1) * threadIdx.x + blockIdx.y;
 	int wid = (CIL + 1) * threadIdx.x + blockIdx.y;
@@ -323,20 +323,16 @@ __global__ void batchMakeGradient(float* grad, float* moments, float* error_term
 
 	//if (threadIdx.x == 0 && blockIdx.x == 0) printf("weight: %f ; batch: %d ; err_offset: %d ; out_offset: %d\n", weights[wid], batch, err_offset, out_offset);
 	float dW = local_errors[threadIdx.x] * local_outs[blockIdx.y];
-	float delta = eta * local_errors[threadIdx.x] * local_outs[blockIdx.y];
 	if (blockIdx.y == CIL) {
-		delta = eta * local_errors[threadIdx.x] * bias;
 		dW = local_errors[threadIdx.x] * bias;
 	}
-	moments[wid] = momentum * moments[wid] + delta;
-	grad[gid] = moments[wid];
-	//if (threadIdx.x == 0 && blockIdx.x == 0 && blockIdx.y == 0) printf("momentum: %f, prev grad: %f\n", momentum, updates[wid]);
+	grad[gid] = dW;
 }
 
 
 
 //This memory is really fragmented, but you get way more threads going off of cell than batchSize
-__global__ void averageGrad(float* batch_grad, float* gradient, int batchSize, int size, int for_size) {
+__global__ void averageGrad(float* batch_grad, float* gradient, int batchSize, float momentum, float* moments, int size, int for_size) {
 	int gid = threadIdx.x * size + blockIdx.x; //cell Id given error_term layer ; weights point to this cell
 	int batch = size * for_size;
 	if (gid > size * for_size) return;
@@ -347,7 +343,9 @@ __global__ void averageGrad(float* batch_grad, float* gradient, int batchSize, i
 		sum += batch_grad[gid + (i * batch)];
 	}
 	sum /= batchSize;
-	gradient[gid] = sum;
+	moments[gid] = momentum * moments[gid] + sum;
+	gradient[gid] = moments[gid];
+	//gradient[gid] = sum;
 }
 
 __global__ void avgOut(float* batch_outs, float* outs, int batchSize, int CIL) {
@@ -377,9 +375,9 @@ __global__ void sumGrad(float* batch_grad, float* gradient, int batchSize, int s
 	gradient[gid] = sum;
 }
 
-__global__ void applyGrad(float* weights, float* gradient, int size) {
+__global__ void applyGrad(float* weights, float* gradient, float eta, int size) {
 	int gid = threadIdx.x * gridDim.x + blockIdx.x;
 	if (gid > size) return;
 
-	weights[gid] -= gradient[gid];
+	weights[gid] -= eta * gradient[gid];
 }
