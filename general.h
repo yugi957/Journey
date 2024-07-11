@@ -77,7 +77,7 @@ vector<T> flatten4D(vector<vector<vector<vector<T>>>>& to_flatten) {
 	return flattened;
 }
 
-vector<vector<float>> autoencode(vector<vector<float>> set, int size);
+vector<vector<float>> autoencode(vector<float> set, int size);
 
 void write4D(vector<vector<vector<vector<float>>>> vec4d);
 void write2D(vector<vector<float>>);

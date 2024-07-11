@@ -112,12 +112,9 @@ void convolve_volume(vec3 a_dim, vector<float>& a, vec3 k_dim, vector<vector<vec
 					for (int j = 0;j < kernelSize;j++) {
 						for (int chan = 0;chan < channels;chan++) {
 							int a_id = ((r + i) * a_dim.y * a_dim.z) + ((c + j) * a_dim.z) + chan;
-							//int k_id = ((i - start) * k_dim.y * k_dim.z) + ((j - start) * k_dim.z);
-							float term = 0;
 							if (a_id >= 0 && a_id < a_size) {
-								term = a[a_id] * kernel[out_chan][i][j][chan];
+								sum += a[a_id] * kernel[out_chan][i][j][chan];
 							}
-							sum += term;
 						}
 					}
 				}
@@ -140,11 +137,10 @@ void backVolve(vec3 a_dim, vector<float>& terms, vec3 k_dim, vector<vector<vecto
 	float sum;
 	fill(terms.begin(), terms.end(), 0);
 
-	for (int r = -padding, out_r = 0; out_r < height; r += stride, ++out_r) {
-		for (int c = -padding, out_c = 0; out_c < width; c += stride, ++out_c) {
-			sum = 0;
-			for (int i = 0;i < kernelSize;i++) {
-				for (int j = 0;j < kernelSize;j++) {
+	/*for (int r = -padding, out_r = 0; out_r < height; r += stride, ++out_r)
+		for (int c = -padding, out_c = 0; out_c < width; c += stride, ++out_c)
+			for (int i = 0;i < kernelSize;i++)
+				for (int j = 0;j < kernelSize;j++)
 					for (int chan = 0;chan < channels;chan++) {
 						int a_id = ((r + i) * a_dim.y * a_dim.z) + ((c + j) * a_dim.z) + chan;
 						float term = 0;
@@ -152,6 +148,23 @@ void backVolve(vec3 a_dim, vector<float>& terms, vec3 k_dim, vector<vector<vecto
 							for (int out_chan = 0;out_chan < out_dim.z;out_chan++){
 								terms[a_id] += kernel[out_chan][i][j][chan] * for_terms[out_r * width * out_dim.z + out_c * out_dim.z + out_chan];
 							}
+						}
+					}*/
+	for (size_t a_id = 0; a_id < a_size; ++a_id) {
+		int z = a_id % channels;
+		int xy = a_id / channels;
+		int y = xy % a_dim.y;
+		int x = xy / a_dim.y;
+		for (int i = 0; i < kernelSize; ++i) {
+			for (int j = 0; j < kernelSize; ++j) {
+				int r = x - padding + i;
+				int c = y - padding + j;
+				if (r >= 0 && r < height && c >= 0 && c < width) {
+					for (int out_chan = 0; out_chan < out_dim.z; ++out_chan) {
+						int out_r = (r + padding) / stride;
+						int out_c = (c + padding) / stride;
+						if (out_r < height && out_c < width) {
+							terms[a_id] += kernel[out_chan][i][j][z] * for_terms[out_r * width * out_dim.z + out_c * out_dim.z + out_chan];
 						}
 					}
 				}
@@ -181,7 +194,7 @@ void backPool(vec3 a_dim, vector<float>& a, vector<float>& terms, vec3 out_dim, 
 				for (int i = 0;i < kernelSize;i++) {
 					for (int j = 0;j < kernelSize;j++) {
 						a_id = ((r + i) * a_dim.y * a_dim.z) + ((c + j) * a_dim.z) + chan;
-						float term = 0;
+						float term;
 						if (a_id >= 0 && a_id < a_size) {
 							term = a[a_id];
 							if (term > max) {

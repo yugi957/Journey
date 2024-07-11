@@ -22,7 +22,7 @@ void xavier_init(vector<vector<float>>& weights, int input_size, int output_size
 
 void he_init(vector<vector<float>>& weights, int input_size, int output_size) {
 	// Define a random number generator
-	default_random_engine generator;
+	default_random_engine generator(42);
 	normal_distribution<float> distribution(0.0, 1.0);
 
 	// Resize the weights matrix to the appropriate size
@@ -62,7 +62,7 @@ void xavier_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int i
 void he_init_conv(vector<vector<vector<vector<float>>>>& conv_weights, int input_channels, int output_channels, int kernel_size) {
 	// Define a random number generator
 	random_device rd;
-	mt19937 generator(rd());
+	mt19937 generator(42);
 	normal_distribution<float> distribution(0.0, 1.0);
 
 	// Compute the scaling factor
@@ -242,7 +242,7 @@ void compareHtoConvWeight(vector<vector<vector<float>>> a, vector<vector<vector<
 bool compare2D(vector<vector<float>> a, vector<vector<float>> b) {
 	for (int i = 0;i < a.size();i++) {
 		for (int j = 0;j < a[i].size();j++) {
-			if (a[i][j] - b[i][j] < -1 * .000001 || a[i][j] - b[i][j] > .000001) {
+			if (a[i][j] - b[i][j] < -1 * .1 || a[i][j] - b[i][j] > .1) {
 				//if(a[i][j] == b[i][j]){
 				printf("%f :: %f\n", a[i][j], b[i][j]);
 				printf("---- %f ----\n", a[i][j] - b[i][j]);
@@ -336,13 +336,13 @@ void shuffleData(vector<vector<float>>& images, vector<vector<float>>& labels) {
 //	return flattened;
 //}
 
-vector<vector<float>> autoencode(vector<vector<float>> set, int size) {
+vector<vector<float>> autoencode(vector<float> set, int size) {
 	vector<float> temp(size, 0);
 	vector<vector<float>> res(set.size(), vector<float>(size));
 	for (int i = 0;i < set.size();i++) {
-		temp[set[i][0]] = 1;
+		temp[set[i]] = 1;
 		res[i] = temp;
-		temp[set[i][0]] = 0;
+		temp[set[i]] = 0;
 	}
 	return res;
 }

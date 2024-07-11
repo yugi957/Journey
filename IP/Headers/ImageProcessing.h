@@ -4,13 +4,6 @@
 #include <math.h>
 #include "../../general.h"
 
-
-struct vec3 {
-	int x, y, z;
-	vec3() : x(0), y(0), z(0) {}
-	vec3(int x, int y, int z) : x(x), y(y), z(z) {}
-};
-
 //float INFINITY = -numeric_limits<float>::infinity();
 
 vec3 getDims(vec3 a_dim, size_t k_size, size_t padding, size_t stride, size_t out_depth);

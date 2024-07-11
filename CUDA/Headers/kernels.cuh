@@ -255,6 +255,19 @@ __global__ void getErrorLayerWRTInputSeq(float* error_terms, float* x, float* y,
 		//	break;
 		//}
 	}
+	/*for (int i = 0;i < size;i++) {
+		switch (L_F) {
+		case(MSE):
+			error_terms[i] = (2.0 / size) * (x[i] - y[i]);
+			if (A_F == SIGMOID) error_terms[i] *= x[i] * (1 - x[i]);
+			else if (A_F == RELU) error_terms[i] *= (x[i] > 0) ? 1 : 0;
+			else if (A_F == LEAKY_RELU) error_terms[i] *= (x[i] > 0) ? 1 : .1;
+			break;
+		case(CROSS_ENTROPY):
+			error_terms[i] = x[i] - y[i];
+			break;
+		}
+	}*/
 	//printf("\n");
 }
 
