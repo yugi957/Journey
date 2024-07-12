@@ -57,7 +57,10 @@ __global__ void runCleanParatron(float* input, float* output, float* weights, ac
 		sum = 1 / (1 + exp(-sum)); //sigmoid
 		break;
 	case RELU:
-		sum = (sum > 0) ? sum : (.1 * sum); //ReLu
+		if (sum <= 0) sum = 0; //ReLu
+		break;
+	case LEAKY_RELU:
+		if (sum <= 0) sum *= .1; //Leaky ReLu
 		break;
 	case SOFTMAX:
 		sum = exp(sum);

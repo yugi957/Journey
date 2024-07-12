@@ -1,37 +1,17 @@
 #include "../general.h"
-#include "../general.h"
 #include <opencv2/opencv.hpp>
 //#include "Headers/ImageProcessing.h"
-#include "../MLP/Headers/MLP.h"
-#include "../MLP/Headers/MNIST.h"
-#include "../MLP/Headers/MLP.cuh"
 #include "../CUDA/Headers/general.cuh"
+#include "../MLP/Headers/MLP.h"
+#include "../MLP/Headers/MLP.cuh"
+#include "../MLP/Headers/MNIST.h"
 #include "../MLP/data/cifar10_reader.hpp"
 #include <fstream>
 using namespace cv;
 
 int main() {
 
-	//MultiLayerPerceptron cnn = MultiLayerPerceptron({}, MSE, 1, .01, 0, 0);
-	//cnn.addLayer(4 * 4 * 1, RELU, vec3(4, 4, 1));
-	//cnn.addConv(2, 0, 1, 1, RELU);
-	//cnn.addConv(2, 0, 1, 1, RELU);
-	//vector<float> example = { 1, 0, 2, 3,
-	//						  4, 6, 6, 8,
-	//						  3, 1, 1, 0,
-	//						  1, 2, 2, 4
-	//};
-	//cnn.finalize();
-	//cnn.conv_weights[0][0][0][0][0] = 1;
-	//cnn.conv_weights[0][0][0][1][0] = 0;
-	//cnn.conv_weights[0][0][1][0][0] = 0;
-	//cnn.conv_weights[0][0][1][1][0] = 1;
-	//cnn.conv_weights[1][0][0][0][0] = -1;
-	//cnn.conv_weights[1][0][0][1][0] = 1;
-	//cnn.conv_weights[1][0][1][0][0] = 0;
-	//cnn.conv_weights[1][0][1][1][0] = 0;
-
-	/*vector<vector<float>> cifar_train_images;
+	vector<vector<float>> cifar_train_images;
 	vector<vector<float>> cifar_train_encoders;
 	vector<vector<float>> cifar_test_images;
 	vector<vector<float>> cifar_test_encoders;
@@ -51,7 +31,7 @@ int main() {
 		cifar_train_encoders = autoencode(dataset.training_labels, 10);
 		cifar_test_images = dataset.test_images;
 		cifar_test_encoders = autoencode(dataset.training_labels, 10);
-	}*/
+	}
 	
 	MultiLayerPerceptron cifarNet = MultiLayerPerceptron({}, CROSS_ENTROPY, 1, .01, 0, 0);
 	cifarNet.addLayer(32*32*3, RELU, vec3(32,32,3));
@@ -65,12 +45,10 @@ int main() {
 	cifarNet.finalize();
 	MultiLayerParatron gpuCifarNet = MultiLayerParatron({}, CROSS_ENTROPY, 1, .01, 0, 0);
 	gpuCifarNet.addLayer(32 * 32 * 3, RELU, vec3(32, 32, 3));
-	gpuCifarNet.addConv(3, 0, 1, 32, RELU);
+	gpuCifarNet.addConv(3, 1, 1, 32, RELU);
+	gpuCifarNet.addConv(3, 1, 1, 32, RELU);
 	gpuCifarNet.addMaxPool(2, 0, 2);
-	gpuCifarNet.addConv(5, 0, 1, 64, RELU);
-	gpuCifarNet.addMaxPool(3, 0, 3);
-	gpuCifarNet.addConv(3, 0, 1, 64, RELU);
-	gpuCifarNet.addLayer(64, RELU);
+	gpuCifarNet.addLayer(128, RELU);
 	gpuCifarNet.addLayer(10, SOFTMAX);
 	gpuCifarNet.finalize();
 	MultiLayerPerceptron LeNet = MultiLayerPerceptron({}, CROSS_ENTROPY, 1, .01, 0, 0);
@@ -129,19 +107,15 @@ int main() {
 	//cout << "Training Neural Network as Image Classifier...\n";
 	int batchSize = 1;
 	float** d_train_imgs, ** d_train_encoders, ** d_test, ** d_cifar_imgs, ** d_cifar_encoders;
-	cudaAllocate2dOffVectorHostRef(&d_train_imgs, train_imgs);
-	cudaAllocate2dOffVectorHostRef(&d_train_encoders, train_encoders);
-	//cudaAllocate2dOffVectorHostRef(&d_cifar_imgs, cifar_train_images);
-	//cudaAllocate2dOffVectorHostRef(&d_cifar_encoders, cifar_train_encoders);
+	//cudaAllocate2dOffVectorHostRef(&d_train_imgs, train_imgs);
+	//cudaAllocate2dOffVectorHostRef(&d_train_encoders, train_encoders);
+	cudaAllocate2dOffVectorHostRef(&d_cifar_imgs, cifar_train_images);
+	cudaAllocate2dOffVectorHostRef(&d_cifar_encoders, cifar_train_encoders);
 	//vector<vector<float>> x_batches = batchify(&train_imgs, batchSize);
 	//vector<vector<float>> y_batches = batchify(&train_encoders, batchSize);
 	//float** d_x_batches, ** d_y_batches;
 	//cudaAllocate2dOffVectorHostRef(&d_x_batches, x_batches);
 	//cudaAllocate2dOffVectorHostRef(&d_y_batches, y_batches);
-
-	CNN.forward_conv(train_imgs[0]);
-	vector<float> o = test.getForwardConv(d_train_imgs[0]);
-	compare2D(CNN.outputs, test.outputs);
 
 	int epochs = 1;
 	float loss = 0.0;
@@ -155,8 +129,8 @@ int main() {
 			//loss += LeNet.backward_conv(train_imgs[i], train_encoders[i]);
 			//loss += cifarNet.backward_conv(cifar_train_images[i], cifar_train_encoders[i]);
 			//l += test.backward_conv(d_train_imgs[i], d_train_encoders[i]);
-			//l += gpuCifarNet.backward_conv(d_cifar_imgs[i], d_cifar_encoders[i]);
-			l += gpuLeNet.backward_conv(d_train_imgs[i], d_train_encoders[i]);
+			l += gpuCifarNet.backward_conv(d_cifar_imgs[i], d_cifar_encoders[i]);
+			//l += gpuLeNet.backward_conv(d_train_imgs[i], d_train_encoders[i]);
 			//compare5D(test.conv_weights, CNN.conv_weights);
 			//compare5D(test.conv_gradient, CNN.conv_gradient);
 			if (i % progressCheck == 0) {
@@ -171,20 +145,20 @@ int main() {
 		}
 	}
 
-	float** d_test_imgs = new float* [test_imgs.size()];
+	float** d_test_imgs;
 	float** d_cifar_test_imgs;
-	cudaAllocate2dOffVectorHostRef(&d_test_imgs, test_imgs);
-	//cudaAllocate2dOffVectorHostRef(&d_cifar_test_imgs, cifar_test_images);
+	//cudaAllocate2dOffVectorHostRef(&d_test_imgs, test_imgs);
+	cudaAllocate2dOffVectorHostRef(&d_cifar_test_imgs, cifar_test_images);
 	float correct = 0.0;
 	float test_correct = 0.0;
 	for (int i = 0;i < test_lbls.size();i++) {
 		if (i % 1000 == 0) cout << i << endl;
 		//vector<float> out = LeNet.forward_conv(test_imgs[i]);
-		vector<float> out(10,0);
+		//vector<float> out(10,0);
 		//vector<float> out = gpuCifarNet.getForwardConv(d_test_imgs[i]);
-		//vector<float> out = cifarNet.forward_conv(cifar_test_images[i]);
-		vector<float> test_out = gpuLeNet.getForwardConv(d_test_imgs[i]);
-		//vector<float> test_out(10,0);
+		vector<float> out = cifarNet.forward_conv(cifar_test_images[i]);
+		//vector<float> test_out = gpuLeNet.getForwardConv(d_test_imgs[i]);
+		vector<float> test_out(10,0);
 		int ans = distance(out.begin(), max_element(out.begin(), out.end()));
 		int test_ans = distance(test_out.begin(), max_element(test_out.begin(), test_out.end()));
 		if (ans == test_lbls[i][0]) correct++;

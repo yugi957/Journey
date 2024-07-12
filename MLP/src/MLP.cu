@@ -186,18 +186,19 @@ void MultiLayerParatron::forward_conv(float* d_x) {
             break;
         case(CONV):
             gridDim = dim3(dimensions[i].x, dimensions[i].y, (dimensions[i].z + 32 - 1) / 32);
-            convolve_volume << <gridDim, 32 >> > (dimensions[i - 1], d_outputs_href[i - 1], conv_weights[i-1][0].size(), dimensions[i].z, d_conv_weights_href[i - 1], d_outputs_href[i], conv_params[i - 1][0], conv_params[i - 1][1]);
+            //gpu_convolve_volume << <gridDim, 32 >> > (dimensions[i - 1], d_outputs_href[i - 1], conv_weights[i-1][0].size(), dimensions[i].z, d_conv_weights_href[i - 1], d_outputs_href[i], conv_params[i - 1][0], conv_params[i - 1][1]);
+            size_convolve_volume << <(size + 32 - 1) / 32, 32 >> > (dimensions[i - 1], d_outputs_href[i - 1], conv_weights[i - 1][0].size(), dimensions[i], d_conv_weights_href[i - 1], d_outputs_href[i], conv_params[i - 1][0], conv_params[i - 1][1]);
             cudaDeviceSynchronize();
             //convolve_volume(dimensions[i - 1], outputs[i - 1], vec3(conv_weights[i - 1][0].size(), conv_weights[i - 1][0][0].size(),
                 //conv_weights[i - 1][0][0][0].size()), conv_weights[i - 1], dimensions[i], outputs[i],
                 //conv_params[i - 1][0], conv_params[i - 1][1]);
-            activate << <(size + 32 - 1) / 32, 32 >> > (d_outputs_href[i], A_Fs[i - 1], size);
+            gpu_activate << <(size + 32 - 1) / 32, 32 >> > (d_outputs_href[i], A_Fs[i - 1], size);
             cudaDeviceSynchronize();
             //activate_conv(outputs[i], A_Fs[i - 1]);
             break;
         case(MAX_POOL):
             gridDim = dim3(dimensions[i].x, dimensions[i].y, (dimensions[i].z + 32 - 1) / 32);
-            max_pool << <gridDim, 32 >> > (dimensions[i - 1], d_outputs_href[i - 1], size_t(conv_weights[i - 1][0][0][0][0]), d_outputs_href[i], conv_params[i - 1][0], conv_params[i - 1][1]);
+            gpu_max_pool << <gridDim, 32 >> > (dimensions[i - 1], d_outputs_href[i - 1], size_t(conv_weights[i - 1][0][0][0][0]), d_outputs_href[i], conv_params[i - 1][0], conv_params[i - 1][1]);
             cudaDeviceSynchronize();
             //max_pool(dimensions[i - 1], outputs[i - 1], dimensions[i], outputs[i], size_t(conv_weights[i - 1][0][0][0][0]), conv_params[i - 1][0], conv_params[i - 1][1]);
             break;
@@ -214,7 +215,7 @@ vector<float> MultiLayerParatron::getForwardConv(float* d_x) {
     forward_conv(d_x);
     vector<float> out(cells_in_layer[layers - 1], 0.0);
     cudaMemcpy(&out[0], d_outputs_href[layers - 1], sizeof(float) * cells_in_layer[layers - 1], cudaMemcpyDeviceToHost);
-    //outputs = cudaCopy2dBackToVectorHref(&d_outputs_href, cells_in_layer);
+    outputs = cudaCopy2dBackToVectorHref(&d_outputs_href, cells_in_layer);
     return out;
 }
 
@@ -316,7 +317,7 @@ float MultiLayerParatron::backward_conv(float* d_x, float* d_y) {
             vec3 k_dim = vec3(conv_weights[i + 1][0].size(), conv_weights[i + 1][0][0].size(), conv_weights[i + 1][0][0][0].size());
             size_t channels = in_dim.z;
             size_t size = in_dim.x * in_dim.y * in_dim.z;
-            backVolve <<<((size + 32) - 1) / 32, 32 >> >(d_outputs_href[i + 1], in_dim, d_error_terms_href[i], k_dim.x, d_conv_weights_href[i + 1], out_dim, d_error_terms_href[i + 1], padding, stride, A_Fs[i]);
+            gpu_backVolve <<<((size + 32) - 1) / 32, 32 >> >(d_outputs_href[i + 1], in_dim, d_error_terms_href[i], k_dim.x, d_conv_weights_href[i + 1], out_dim, d_error_terms_href[i + 1], padding, stride, A_Fs[i]);
             cudaDeviceSynchronize();
         }
         else if (layers[i + 2] == MAX_POOL) {
@@ -328,9 +329,9 @@ float MultiLayerParatron::backward_conv(float* d_x, float* d_y) {
             size_t channels = in_dim.z;
             size_t size = in_dim.x * in_dim.y * in_dim.z;
             size_t out_size = out_dim.x * out_dim.y * out_dim.z;
-            setZero << <((size + 32) - 1) / 32, 32 >> > (d_error_terms_href[i], size);
+            gpu_setZero << <((size + 32) - 1) / 32, 32 >> > (d_error_terms_href[i], size);
             cudaDeviceSynchronize();
-            backPool << <((size + 32) - 1) / 32, 32 >> > (in_dim, d_outputs_href[i + 1], d_error_terms_href[i], out_dim, d_error_terms_href[i + 1], pool_size, padding, stride);
+            gpu_backPool << <((size + 32) - 1) / 32, 32 >> > (in_dim, d_outputs_href[i + 1], d_error_terms_href[i], out_dim, d_error_terms_href[i + 1], pool_size, padding, stride);
             cudaDeviceSynchronize();
         }
         else if (layers[i + 2] == DENSE) {
@@ -349,9 +350,9 @@ float MultiLayerParatron::backward_conv(float* d_x, float* d_y) {
             size_t channels = in_dim.z;
             size_t grad_size = k_dim.x * k_dim.y * k_dim.z * out_dim.z;
             dim3 gridDim(out_dim.z, (grad_size / out_dim.z + 32 - 1) / 32);
-            setZero << <((grad_size + 32) - 1) / 32, 32 >> > (d_conv_gradient_href[i], grad_size);
+            gpu_setZero << <((grad_size + 32) - 1) / 32, 32 >> > (d_conv_gradient_href[i], grad_size);
             cudaDeviceSynchronize();
-            gradVolve<<<gridDim, 32>>> (in_dim, d_outputs_href[i], k_dim, d_conv_gradient_href[i], out_dim, d_error_terms_href[i], padding, stride);
+            gpu_gradVolve<<<gridDim, 32>>> (in_dim, d_outputs_href[i], k_dim, d_conv_gradient_href[i], out_dim, d_error_terms_href[i], padding, stride);
             cudaDeviceSynchronize();
         }
         else if (layers[i + 1] == DENSE) {
